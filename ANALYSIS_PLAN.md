@@ -28,7 +28,13 @@ Given the complexity of the ewas models, it is easier and more convenient to run
 
 ## Phenome-environment-wide sex difference test
 
-Considering two sexes, $i=1,2$, let $Y_p$ be a vector of phenotypes, where $p=1...,P$ considering $P$ phenotypes, and $X_q$ a vector of environmental exposures of $q$ environmental exposures in $n$ samples. 
+Considering two sexes, $i=1,2$, let $Y_p$ be a vector of phenotypes, where $p=1...,P$ considering $P$ phenotypes, and $X_q$ a vector of environmental exposures, $q=1...,Q$, considering $Q$ environmental exposures. We write the linear regression as:
+$$
+Y_{ip} = X_{ik}\beta + 
+$$ 
+
+<img src="https://latex.codecogs.com/svg.latex?\Large&space;x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}" title="\Large x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}" />
+
 
 # References
 
