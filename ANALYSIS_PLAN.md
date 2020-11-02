@@ -28,13 +28,29 @@ Given the complexity of the ewas models, it is easier and more convenient to run
 
 ## Phenome-environment-wide sex difference test
 
-Considering two sexes, $i=1,2$, let $Y_p$ be a vector of phenotypes, where $p=1...,P$ considering $P$ phenotypes, and $X_q$ a vector of environmental exposures, $q=1...,Q$, considering $Q$ environmental exposures. We write the linear regression as:
+Considering two sexes, $i=1,2$, let $Y_p$ be a vector of phenotypes, where $p=1...,P$ considering $P$ phenotypes, and $X_q$ is a vector of environmental exposures, $q=1...,Q$, considering $Q$ environmental exposures. We write the linear regression as:
+
 $$
-Y_{ip} = X_{ik}\beta + 
+Y_{ip} = X_{ik}\beta + \epsilon
 $$ 
 
-<img src="https://latex.codecogs.com/svg.latex?\Large&space;x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}" title="\Large x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}" />
+Our interest will be focused on $\beta_{ipq}$ which is the beta coefficient of the effect of the environmental exposure $q$ on phenotype $p$, in sex $i$, with its corresponding standard error $se_{ipq}$. For the phenome-environment-wide sex difference test we will estimate the *difference test* by estimating:
 
+$$
+Z_{diff} = \frac{\beta_{1pq} - \beta_{2pq}}{\sqrt{se^2_{1pq} - se^2_{2pq}}}
+$$
+
+We will use the Bonferroni correction for multiple testing
+
+## Filtering by overall association
+
+The second pipeline we will use to estimate sex differences incorporates a filtering based on overall association before the difference test. On a stratified approach, the *overall test* is given by:
+
+$$
+Z_{overall} = \frac{\frac{\beta_{1pq} }{se^2_{1pq} } + \frac{\beta_{2pq} }{se^2_{2pq} } }{\sqrt{ \frac{1}{se^2_{1pq} } + \frac{1}{se^2_{2pq} } } }
+$$
+
+Both the filtering by overall test and the subsequent difference test will use the Bonferroni correction for multiple testing 
 
 # References
 
