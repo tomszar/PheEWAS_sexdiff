@@ -3,7 +3,7 @@
 The purpose of this analysis is to discover phenome-environment-wide associations that have differential effects between sexes. Most of the pipeline, phenotype and variable selection will follow [Nikki’s plan](https://docs.google.com/document/d/1_2FWZHSnPEc1CqDxdVDRocUD1A3srALysvxBdCpunqY/edit?usp=sharing)
 
 1. Initial QC process
-    - Drop any variables that are indeterminant according to the NHANES data dictionary
+    - Drop any variables that are indeterminate according to the NHANES data dictionary
     - Remove variables that don’t have 4 year weights
     - Drop any non-environmental exposures (examples physical fitness)
     - Determine covariates and phenotypes
@@ -25,6 +25,10 @@ The purpose of this analysis is to discover phenome-environment-wide association
     - Non normal distributions are log transformed
 
 Given the complexity of the ewas models, it is easier and more convenient to run a stratified ewas and test for sex differences after. Winkler et al (2017) recommend following two approaches in parallel in genome-wide association studies if there is no prior hypothesis on sex differences: to run a genome-wide difference test between sexes, and another approach that first filters for an overall association and then test for the difference between sexes with a Bonferroni corrected alpha. 
+
+## Phenome-environment-wide sex difference test
+
+Considering two sexes, $i=1,2$, let $Y_p$ be a vector of phenotypes, where $p=1...,P$ considering $P$ phenotypes, and $X_q$ a vector of environmental exposures of $q$ environmental exposures in $n$ samples. 
 
 # References
 
