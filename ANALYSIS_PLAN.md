@@ -37,7 +37,7 @@ $$
 Our interest will be focused on $\beta_{ipq}$ which is the beta coefficient of the effect of the environmental exposure $q$ on phenotype $p$, in sex $i$, with its corresponding standard error $se_{ipq}$. For the phenome-environment-wide sex difference test we will estimate the *difference test* as:
 
 $$
-Z_{diff} = \frac{\beta_{1pq} - \beta_{2pq}}{\sqrt{se^2_{1pq} - se^2_{2pq}}}
+Z_{diff} = \frac{\beta_{1pq} - \beta_{2pq}}{\sqrt{se^2_{1pq} + se^2_{2pq}}}
 $$
 
 We will use the Bonferroni correction for multiple testing.
