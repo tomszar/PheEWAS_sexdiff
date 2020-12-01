@@ -7,5 +7,5 @@ Analysis on sex differences in NHANES dataset. The analysis plan is [here](https
 - [Script to download the data](https://github.com/tomszar/PheEWAS_sexdiff/blob/main/Code/01_GetData.sh)
 
 ## Pipeline
-- [Initial cleaning and QC](https://nbviewer.jupyter.org/github/tomszar/PheEWAS_sexdiff/blob/main/Code/01_PheEWAS_sex_diff.ipynb)
-- Sex difference analysis: coming soon
+- [Initial cleaning and QC](https://nbviewer.jupyter.org/github/tomszar/PheEWAS_sexdiff/blob/main/Code/02_QC.ipynb)
+- [Sex difference analysis](https://nbviewer.jupyter.org/github/tomszar/PheEWAS_sexdiff/blob/main/Code/03_Analysis.ipynb): This was sent to Penn State's ICDS
