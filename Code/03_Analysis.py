@@ -196,7 +196,7 @@ for i in range(len(dfs)):
                                                    single_cluster='adjust'))
 
 
-# In[16]:
+# In[21]:
 
 
 #Omit pandas warning
@@ -234,9 +234,18 @@ results = [pd.concat(results_d_f).merge(pd.concat(results_r_f), how = 'inner',
                              left_index=True, right_index=True, suffixes =['_d', '_r'] )]
 
 
+# In[40]:
+
+
+# Let's keep only those that converged across all 4 data sets
+keep = results[0].loc[:,'Converged_d'] & results[0].loc[:,'Converged_r' ] & results[1].loc[:,'Converged_d'] & results[1].loc[:,'Converged_r' ]
+for i in range(len(results)):
+    results[i] = results[i][keep]
+
+
 # ## Meta-analyze
 
-# In[17]:
+# In[42]:
 
 
 def meta_analysis(betas, ses):
@@ -256,7 +265,7 @@ def meta_analysis(betas, ses):
     return[meta_se, meta_beta, pval]
 
 
-# In[18]:
+# In[43]:
 
 
 # Males vs females meta-analysis
@@ -278,7 +287,7 @@ for i in range(len(results)): # Calculate the meta-analysis parameters
     results[i] = results[i].drop(drop_cols, axis=1)
 
 
-# In[19]:
+# In[44]:
 
 
 # Final meta analysis (males with females)
@@ -301,7 +310,7 @@ cl.analyze.add_corrected_pvalues(final_meta)
 # - First, a wide difference test (better suited to detect opposite effects), that will take all possible tests, calculate bonferroni corrected pvalues, and then only keep those that have opposite effects between sexes
 # - Second, a filtering first test (better suited to detect effects that are only or more pronounced in one sex), that will take the overall meta-analyzed association, filtering by (what threshold?), and then test for differences between sexes and retain only those that are not opposite effects
 
-# In[20]:
+# In[45]:
 
 
 # Merge datasets and rename and remove columns
@@ -321,7 +330,7 @@ merge_sex = merge_sex.drop(drop_cols, axis=1)
 final_result = pd.merge(final_meta, merge_sex, how = 'inner', left_index=True, right_index=True, suffixes=[None, 'y'])
 
 
-# In[36]:
+# In[46]:
 
 
 # Estimate differences
@@ -343,5 +352,5 @@ final_result.loc[~final_result['pvalue_diff'].isna(), 'pvalue_diff_bonferroni'] 
 
 # Save file
 os.chdir(respath)
-final_result.to_csv('Difference_test.csv')
+final_result.to_csv('Difference_test2.csv')
 
