@@ -15,16 +15,19 @@ The purpose of this analysis is to discover phenome-environment-wide association
 4. Split dataset into discovery (series 1 and 2) and replication (series 3 and 4) datasets
     - Make sure the phenotypes from the dataset categorized under biochemistry and blood lab test/measures are included in at least one series from Discovery and Replication
     - Nikki’s list of 58 phenotypes already has taken care of the previous step
-5. Drop any variable that has a missing value in the covariate list
-6. Separate datasets into phenotypes and exposures and continue with QC
-7. Remove phenotypes with more than 90% of samples with 0 value 
+5. Split datasets into males and females (therefore, ending up with 4 different data sets)
+6. Drop any variable that has a missing value in the covariate list
+7. Separate datasets into phenotypes and exposures and continue with QC
+8. Remove phenotypes with more than 90% of samples with 0 value 
     - Nikki’s list of phenotypes already has those removed
-8. Transform variables due to skewness and non-normality
-    - The list of transformations is again replicated from Nikki’s analyses
-    - Those with negative skew are mirrored by subtracting the maximum value plus 1
-    - Non normal distributions are log transformed
+9. Keep only those phenotypes and variables that are present in all 4 data sets
+10. Normalize variables by mean subtraction and sd division
 
-Given the complexity of the ewas models, it is easier and more convenient to run a stratified ewas and test for sex differences after. Winkler et al (2017) recommend following two approaches in parallel in genome-wide association studies if there is no prior hypothesis on sex differences: to run a genome-wide difference test between sexes, and another approach that first filters for an overall association and then test for the difference between sexes with a Bonferroni corrected alpha. 
+Given the complexity of the EWAS models, it is easier and more convenient to run a stratified EWAS and test for sex differences after. Therefore, we will run four separate EWAS models for each dataset independently and estimating the corresponding parameters ($\beta$, $se$). Winkler et al (2017) recommend following two approaches in parallel in genome-wide association studies if there is no prior hypothesis on sex differences: to run a genome-wide difference test between sexes to search for opposite effects, and another approach that first filters for an overall association and then test for the difference between sexes to search for those with differences in the size of the effect, or for those that there is no effect in one sex. The following categories will be used to refer to those differences in effects:
+
+- Qualitative: exposures that have opposite effects between sexes
+- Quantitative: exposures have the same direction of effect, but the effect is larger in one sex
+- Pure: exposures have an effect in only one sex and not in the other
 
 ## Phenome-environment-wide sex difference test
 
@@ -51,6 +54,13 @@ Z_{overall} = \frac{\frac{\beta_{1pq} }{se^2_{1pq} } + \frac{\beta_{2pq} }{se^2_
 $$
 
 Both the filtering by overall test and the subsequent difference test will use the Bonferroni correction for multiple testing.
+
+## Step-by-step analysis
+
+Finally, the pipeline will follow these steps:
+
+1. To detect qualitative effect differences we will run the difference test and select those with a Bonferroni corrected $\alpha$. Then, we will keep only those with opposite effects (different directions of $\beta$ coefficients, and nominally significant in both sexes)
+2. To detect quantitative and pure effect differences we will first filter by an overall effect $p-value < 0.05$ and then select those with a difference test with a Bonferroni corrected $\alpha$. We will classify those will $\beta$ coefficients in the same direction and with a nominal p-value in both sexes as a quantitative difference, while those with a nominal p-value in only one sex will be classified as a pure difference
 
 # References
 
