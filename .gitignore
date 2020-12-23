@@ -43,3 +43,6 @@ vignettes/*.pdf
 
 # Checkpoint
 .ipynb_checkpoints
+
+# Manuscript output
+/Manuscript/build
