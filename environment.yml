@@ -19,9 +19,9 @@ dependencies:
   - bwidget=1.9.14=0
   - bzip2=1.0.8=h516909a_3
   - c-ares=1.16.1=h516909a_3
-  - ca-certificates=2020.10.14=0
+  - ca-certificates=2020.12.8=h06a4308_0
   - cairo=1.16.0=h3fc0475_1005
-  - certifi=2020.6.20=py37he5f6b98_2
+  - certifi=2020.12.5=py37h89c1867_1
   - cffi=1.14.3=py37he30daa8_0
   - chardet=3.0.4=py37he5f6b98_1008
   - cryptography=3.2.1=py37hc72a4ac_0
@@ -50,6 +50,7 @@ dependencies:
   - ipython=5.8.0=py37_1
   - ipython_genutils=0.2.0=py_1
   - jinja2=2.11.2=pyh9f0ad1d_0
+  - joblib=1.0.0=pyhd8ed1ab_0
   - jpeg=9d=h36c2ea0_0
   - json5=0.9.5=pyh9f0ad1d_0
   - jsonschema=3.2.0=py_2
@@ -94,7 +95,7 @@ dependencies:
   - ncurses=6.2=he1b5a44_2
   - nest-asyncio=1.4.2=pyhd8ed1ab_0
   - notebook=6.1.4=py37hc8dfbb8_1
-  - openssl=1.1.1h=h516909a_0
+  - openssl=1.1.1i=h7f98852_0
   - packaging=20.4=pyh9f0ad1d_0
   - pandoc=2.11.0.4=hd18ef5c_0
   - pandocfilters=1.4.2=py_1
@@ -275,6 +276,8 @@ dependencies:
   - readline=8.0=he28a2e2_2
   - requests=2.24.0=pyh9f0ad1d_0
   - rpy2=3.3.6=py37r36h161383b_0
+  - scikit-learn=0.24.0=py37h69acf81_0
+  - scipy=1.5.3=py37h8911b10_0
   - sed=4.8=hbfbb72e_0
   - send2trash=1.5.0=py_0
   - setuptools=50.3.0=py37hb0f4dca_1
@@ -284,6 +287,7 @@ dependencies:
   - sysroot_linux-64=2.12=h77966d4_13
   - terminado=0.9.1=py37hc8dfbb8_1
   - testpath=0.4.4=py_0
+  - threadpoolctl=2.1.0=pyh5ca1d4c_0
   - tk=8.6.10=hed695b0_1
   - tktable=2.10=h555a92e_3
   - tornado=6.1=py37h4abf009_0
@@ -321,7 +325,6 @@ dependencies:
     - pluggy==0.13.1
     - py==1.9.0
     - pytest==6.1.2
-    - scipy==1.5.3
     - seaborn==0.11.0
     - statsmodels==0.12.1
     - toml==0.10.2
