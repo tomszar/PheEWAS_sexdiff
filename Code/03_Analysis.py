@@ -48,7 +48,7 @@ for i in range(4):
 name_of_results = ['discovery females', 'discovery males', 'replication females', 'replication males']
 total_results   = []
 for i in range(4):
-    res = split_datasets[i].run_phe_ewas(phenotypes[0:1], covariates, survey_designs[i])
+    res = split_datasets[i].run_phe_ewas(phenotypes, covariates, survey_designs[i])
     total_results.append(res)
 
 final_results = modules.PheEWAS_Results(total_results, name_of_results)
