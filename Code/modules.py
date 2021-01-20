@@ -85,6 +85,19 @@ class NhanesData:
                 body_measures_vars.append(item[0])
 
         self.data = self.data.drop(columns=body_measures_vars)
+
+    def drop_disease_vars(self, var_category):
+        '''
+        Drop disease variables
+        '''
+        print('Removing disease variables:')
+        print('-----------------------------------')
+        disease_vars = []
+        for item in var_category.items():
+            if item[1] == 'disease':
+                disease_vars.append(item[0])
+
+        self.data = self.data.drop(columns=disease_vars)
         
     def drop_indeterminate_vars(self, var_description=None):
         '''
@@ -140,8 +153,8 @@ class NhanesData:
         '''
         Remove constant variables. Add extra_vars to include variables that you
         don't want removed (covariates, phenotypes, sex, etc)
+        Clarite categorize should already been done in the dataset
         '''
-        self.data    = clarite.modify.categorize(self.data)
         var_types    = clarite.describe.get_types(self.data)
         var_constant = var_types[var_types == 'constant'].index
         constant_variables = set(var_constant) # Get unique elements
