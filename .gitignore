@@ -46,3 +46,9 @@ vignettes/*.pdf
 
 # Manuscript output
 /Manuscript/build
+
+# VSCode
+.vscode
+
+# Python
+__pycache__
