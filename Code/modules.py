@@ -382,13 +382,13 @@ class PheEWAS_Results:
         # 1. Z_diff is significant, also both meta female and meta male are significant, and betas are opposite
         zdiff_sign = self.results[7]['pvalue_bonferroni'] < 0.05
         both_sign  = ( self.results[4]['pvalue'] < 0.05 ) & ( self.results[5]['pvalue'] < 0.05 )
-        opposite_direction = self.results[4]['Beta'] * self.results[4]['Beta'] < 0
+        opposite_direction = self.results[4]['Beta'] * self.results[5]['Beta'] < 0
         keep_qual  = zdiff_sign & both_sign & opposite_direction
 
         # 2. Overall nominal significance, zdiff significance boferroni, both significant and same direction
         overall_nominal  = self.results[6]['pvalue'] < 0.05
         zdiff_bonferroni = self.results[7]['pvalue'] < ( 0.05/ sum(overall_nominal))
-        same_direction   = self.results[4]['Beta'] * self.results[4]['Beta'] > 0
+        same_direction   = self.results[4]['Beta'] * self.results[5]['Beta'] > 0
         keep_quant = overall_nominal & zdiff_bonferroni & same_direction & both_sign
 
         # 3. Overall nominal significance, zdiff significance boferroni, only one significant
