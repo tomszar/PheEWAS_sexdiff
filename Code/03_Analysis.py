@@ -8,6 +8,7 @@ paths  = modules.set_project_paths()
 #### DATA
 split_datasets  = modules.load_clean_data(paths[2])  
 var_description = modules.load_var_information(paths[1])
+var_category    = modules.load_var_information(paths[1], description=False)
 
 # Categorize variables
 # All unknown are continuous
@@ -44,7 +45,7 @@ for i in range(4):
         survey = weights_replication_divided[ind].create_survey_design()
         survey_designs.append(survey)
 
-#Run analysis
+# Run analysis
 name_of_results = ['discovery females', 'discovery males', 'replication females', 'replication males']
 total_results   = []
 for i in range(4):
@@ -59,6 +60,9 @@ final_results.meta_analyze('meta total', indices=(4,5))
 
 final_results.estimate_sex_differences()
 final_results.apply_decision_tree()
+
+# Add variable names for human readability
+final_results.add_variable_names(var_description, var_category)
 
 # Save files
 final_results.save_results(paths[2])

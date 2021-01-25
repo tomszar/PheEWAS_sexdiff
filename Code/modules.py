@@ -402,6 +402,23 @@ class PheEWAS_Results:
             self.results[i].loc[keep_quant,'difference_type'] = 'Quantitative'
             self.results[i].loc[keep_pure,'difference_type']  = 'Pure'
 
+    def add_variable_names(self, var_description, var_category):
+        '''
+        add human readable variable names, given in var_description and var_category
+        '''
+        for i in range(len(self.results)):
+            index_variable  = self.results[i].index.get_level_values(level='Variable')
+            index_phenotype = self.results[i].index.get_level_values(level='Phenotype')
+            variable_name   = _add_var_from_dict(index_variable, var_description)
+            self.results[i]['Variable_Name']  = variable_name
+            phenotype_name  = _add_var_from_dict(index_phenotype, var_description)
+            self.results[i]['Phenotype_Name'] = phenotype_name
+            variable_category = _add_var_from_dict(index_variable, var_category)
+            self.results[i]['Variable_Category'] = variable_category
+            self.results[i]['Variable']  = index_variable
+            self.results[i]['Phenotype'] = index_phenotype
+            self.results[i] = self.results[i].set_index(['Variable','Variable_Name','Phenotype','Phenotype_Name'])
+
     def save_results(self, respath):
         '''
         Save PheEWAS results in respath
@@ -557,3 +574,12 @@ def check_weights(weights):
                 remove_vars.append(key)
 
     return(remove_vars)
+
+def _add_var_from_dict(index_var, var_dict):
+    res = []
+    for i in range(len(index_var)):
+        if index_var[i] in var_dict.keys():
+            res.append(var_dict[index_var[i]])
+        else:
+            res.append('')
+    return(res)
