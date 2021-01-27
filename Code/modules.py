@@ -193,11 +193,38 @@ class NhanesData:
                 print(f"\t{v} = {var_description[v]}")
         return(var_unknown)
 
-    def plot_variables(self, respath, phenotypes, covariates, suffix=''):
+    def log_transform_skewed(self, min_max=(-0.5,0.5)):
+        '''
+        Log transform highly skewed continuous variables
+        '''
+        var_types      = clarite.describe.get_types(self.data)
+        var_continuous = var_types[var_types == 'continuous'].index
+        skew_test      = clarite.describe.skewness(self.data[var_continuous], dropna=True)
+        skewed_vars_pos = var_continuous[skew_test['skew'] > min_max[1]]
+        skewed_vars_neg = var_continuous[skew_test['skew'] < min_max[0]]
+        skewed_vars     = skewed_vars_pos.append(skewed_vars_neg)
+
+        print('Tranforming ' + str(len(skewed_vars_pos)) + ' positevely skewed, and ' +
+               str(len(skewed_vars_neg)) + ' negatevely skewed variables')
+
+        #Transform
+        for var in skewed_vars:
+            if var in skewed_vars_pos:
+                vmin = self.data[var].min()
+                if vmin == 0.0: # If there are zeros, add a small constant to all values
+                    min_observed = np.nanmin(np.array(self.data[var])[np.nonzero(np.array(self.data[var]))])
+                    c = min_observed / 100 
+                    self.data[var] = self.data[var] + c
+                self.data[var] = np.log(self.data[var])
+            elif var in skewed_vars_neg:
+                cs = max(self.data[var]) + 1
+                self.data[var] = np.log(cs - self.data[var])
+
+    def plot_variables(self, plotpath, phenotypes, covariates, suffix=''):
         '''
         Plot variables
         '''
-        os.chdir(os.path.join(respath, 'Plots'))
+        os.chdir(plotpath)
     
         var_types  = clarite.describe.get_types(self.data)
         var_binary = var_types[var_types == 'binary'].index
@@ -460,6 +487,19 @@ def load_clean_data(respath):
         dfs.append(pd.read_csv('CleanData_' + loadfiles[i] + '.csv').set_index('ID'))
         dfs[i] = NhanesData(dfs[i])
     return(dfs)
+
+def load_results(respath):
+    '''
+    Load results from the Analysis script
+    '''
+    os.chdir(respath)
+    names = ['discovery females', 'discovery males', 'replication females', 'replication males',
+             'meta females', 'meta males', 'meta total', 'sex differences']
+    dfs = []
+    for i in range(len(names)):
+        dfs.append(pd.read_csv(names[i] + '.csv'))
+    final_results = PheEWAS_Results(dfs, names)
+    return(final_results)
 
 def load_var_information(datapath, description=True):
     '''
