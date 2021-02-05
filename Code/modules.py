@@ -220,6 +220,14 @@ class NhanesData:
                 cs = max(self.data[var]) + 1
                 self.data[var] = np.log(cs - self.data[var])
 
+    def remove_continous_outliers(self):
+        '''
+        Remove outliers in all continuous variables
+        '''
+        var_types      = clarite.describe.get_types(self.data)
+        var_continuous = var_types[var_types == 'continuous'].index
+        self.data = clarite.modify.remove_outliers(self.data, only=var_continuous)
+
     def plot_variables(self, plotpath, phenotypes, covariates, suffix=''):
         '''
         Plot variables
