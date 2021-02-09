@@ -107,7 +107,8 @@ class NhanesData:
         print('-----------------------------------')
         indeterminent_vars = ["house_type","hepa","hepb","house_age",
                               "current_past_smoking","house_age","DUQ130",
-                              "DMDMARTL","income"]
+                              "DMDMARTL","income","LBXSCRINV"]
+        # Added 1/Creatinine as well
         if var_description is not None:
             for v in indeterminent_vars:
                 if v in var_description:
@@ -204,8 +205,8 @@ class NhanesData:
         skewed_vars_neg = var_continuous[skew_test['skew'] < min_max[0]]
         skewed_vars     = skewed_vars_pos.append(skewed_vars_neg)
 
-        print('Tranforming ' + str(len(skewed_vars_pos)) + ' positevely skewed, and ' +
-               str(len(skewed_vars_neg)) + ' negatevely skewed variables')
+        print('Tranforming ' + str(len(skewed_vars_pos)) + ' positively skewed, and ' +
+               str(len(skewed_vars_neg)) + ' negatively skewed variables')
 
         #Transform
         for var in skewed_vars:
@@ -566,14 +567,14 @@ def get_phenotypes(print_descriptions=False, var_description=None, cleaned=False
     Get the list of phenotypes and print their description if desired
     '''
     if cleaned is True:
-        phenotype = ["LBXSCRINV","URXUCR","LBXSCR","LBXSATSI","LBXSAL","URXUMASI","URXUMA","LBXSAPSI","LBXSASSI","LBXSC3SI",
+        phenotype = ["URXUCR","LBXSCR","LBXSATSI","LBXSAL","URXUMASI","URXUMA","LBXSAPSI","LBXSASSI","LBXSC3SI",
              "LBXSBU","LBXBAP","LBXCPSI","LBXCRP","LBXSCLSI","LBXSCH","LBDHDL","LBDLDL","LBXSGTSI","LBXSGB",
              "LBXGLU","LBXGH","LBXHCY","LBXSIR","LBXSLDSI","LBXMMA","LBXSOSSI","LBXSPH","LBXSKSI",	
              "LBXSNASI","LBXSTB","LBXSCA","LBXSTP","LBXSTR","LBXSUA","LBDBANO","LBXBAPCT",
              "LBDEONO","LBXEOPCT","LBXHCT","LBXHGB","LBDLYMNO","LBXMCHSI","LBXLYPCT","LBXMCVSI","LBXMPSI","LBDMONO",
              "LBXMOPCT","LBXPLTSI","LBXRBCSI","LBXRDW","LBDNENO","LBXNEPCT"] # I removed the ones that were deleted in the QC process
     elif cleaned is False:
-        phenotype = ["LBXSCRINV","URXUCR","LBXSCR","LBXSATSI","LBXSAL","URXUMASI",
+        phenotype = ["URXUCR","LBXSCR","LBXSATSI","LBXSAL","URXUMASI",
                  "URXUMA","LBXSAPSI","LBXSASSI","LBXSC3SI","LBXSBU","LBXBAP",
                  "LBXCPSI","LBXCRP","LBXSCLSI","LBXSCH","LBDHDL","LBDLDL",
                  "LBXFER","LBXSGTSI","LBXSGB","LBXGLU","LBXGH","LBXHCY",
