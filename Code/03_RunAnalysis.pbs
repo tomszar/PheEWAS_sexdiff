@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -l nodes=1:ppn=1
+#PBS -l nodes=1:ppn=1:rhel7
 #PBS -l walltime=08:00:00
 #PBS -l pmem=32gb
 #PBS -A mah546_c_g_bc_default #or open
