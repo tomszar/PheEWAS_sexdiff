@@ -107,7 +107,8 @@ class NhanesData:
         print('-----------------------------------')
         indeterminent_vars = ["house_type","hepa","hepb","house_age",
                               "current_past_smoking","house_age","DUQ130",
-                              "DMDMARTL","income","LBXSCRINV"]
+                              "DMDMARTL","income","LBXSCRINV","URXUMASI",
+                              "LBXSIR"]
         # Added 1/Creatinine as well
         if var_description is not None:
             for v in indeterminent_vars:
@@ -205,8 +206,9 @@ class NhanesData:
         skewed_vars_neg = var_continuous[skew_test['skew'] < min_max[0]]
         skewed_vars     = skewed_vars_pos.append(skewed_vars_neg)
 
-        print('Tranforming ' + str(len(skewed_vars_pos)) + ' positively skewed, and ' +
-               str(len(skewed_vars_neg)) + ' negatively skewed variables')
+        print('Tranforming ' + str(len(skewed_vars_pos)) + 
+              ' positively skewed, and ' + str(len(skewed_vars_neg)) + 
+              ' negatively skewed variables')
 
         #Transform
         for var in skewed_vars:
@@ -214,7 +216,7 @@ class NhanesData:
                 vmin = self.data[var].min()
                 if vmin == 0.0: # If there are zeros, add a small constant to all values
                     min_observed = np.nanmin(np.array(self.data[var])[np.nonzero(np.array(self.data[var]))])
-                    c = min_observed / 100 
+                    c = min_observed / 10000 
                     self.data[var] = self.data[var] + c
                 self.data[var] = np.log(self.data[var])
             elif var in skewed_vars_neg:
@@ -567,23 +569,27 @@ def get_phenotypes(print_descriptions=False, var_description=None, cleaned=False
     Get the list of phenotypes and print their description if desired
     '''
     if cleaned is True:
-        phenotype = ["URXUCR","LBXSCR","LBXSATSI","LBXSAL","URXUMASI","URXUMA","LBXSAPSI","LBXSASSI","LBXSC3SI",
-             "LBXSBU","LBXBAP","LBXCPSI","LBXCRP","LBXSCLSI","LBXSCH","LBDHDL","LBDLDL","LBXSGTSI","LBXSGB",
-             "LBXGLU","LBXGH","LBXHCY","LBXSIR","LBXSLDSI","LBXMMA","LBXSOSSI","LBXSPH","LBXSKSI",	
-             "LBXSNASI","LBXSTB","LBXSCA","LBXSTP","LBXSTR","LBXSUA","LBDBANO","LBXBAPCT",
-             "LBDEONO","LBXEOPCT","LBXHCT","LBXHGB","LBDLYMNO","LBXMCHSI","LBXLYPCT","LBXMCVSI","LBXMPSI","LBDMONO",
-             "LBXMOPCT","LBXPLTSI","LBXRBCSI","LBXRDW","LBDNENO","LBXNEPCT"] # I removed the ones that were deleted in the QC process
+        phenotype = ["URXUCR","LBXSCR","LBXSATSI","LBXSAL","URXUMA",
+                     "LBXSAPSI","LBXSASSI","LBXSC3SI","LBXSBU","LBXBAP",
+                     "LBXCPSI","LBXCRP","LBXSCLSI","LBXSCH","LBDHDL","LBDLDL",
+                     "LBXSGTSI","LBXSGB","LBXGLU","LBXGH","LBXHCY",
+                     "LBXSLDSI","LBXMMA","LBXSOSSI","LBXSPH","LBXSKSI",
+                     "LBXSNASI","LBXSTB","LBXSCA","LBXSTP","LBXSTR","LBXSUA",
+                     "LBDBANO","LBXBAPCT","LBDEONO","LBXEOPCT","LBXHCT",
+                     "LBXHGB","LBDLYMNO","LBXMCHSI","LBXLYPCT","LBXMCVSI",
+                     "LBXMPSI","LBDMONO","LBXMOPCT","LBXPLTSI","LBXRBCSI",
+                     "LBXRDW","LBDNENO","LBXNEPCT"] # I removed the ones that were deleted in the QC process
     elif cleaned is False:
-        phenotype = ["URXUCR","LBXSCR","LBXSATSI","LBXSAL","URXUMASI",
-                 "URXUMA","LBXSAPSI","LBXSASSI","LBXSC3SI","LBXSBU","LBXBAP",
-                 "LBXCPSI","LBXCRP","LBXSCLSI","LBXSCH","LBDHDL","LBDLDL",
-                 "LBXFER","LBXSGTSI","LBXSGB","LBXGLU","LBXGH","LBXHCY",
-                 "LBXSIR","LBXSLDSI","LBXMMA","LBXSOSSI","LBXSPH","LBXSKSI",
-                 "LBXEPP","LBXSNASI","LBXTIB","LBXSTB","LBXSCA","LBXSTP",
-                 "LBDPCT","LBXSTR","LBXSUA","LBDBANO","LBXBAPCT","LBDEONO",
-                 "LBXEOPCT","LBXHCT","LBXHGB","LBDLYMNO","LBXMCHSI","LBXLYPCT",
-                 "LBXMCVSI","LBXMPSI","LBDMONO","LBXMOPCT","LBXPLTSI",
-                 "LBXRBCSI","LBXRDW","LBDNENO","LBXNEPCT","LBXIRN"]
+        phenotype = ["URXUCR","LBXSCR","LBXSATSI","LBXSAL","URXUMA","LBXSAPSI",
+                     "LBXSASSI","LBXSC3SI","LBXSBU","LBXBAP","LBXCPSI","LBXCRP",
+                     "LBXSCLSI","LBXSCH","LBDHDL","LBDLDL","LBXFER","LBXSGTSI",
+                     "LBXSGB","LBXGLU","LBXGH","LBXHCY","LBXSLDSI","LBXMMA",
+                     "LBXSOSSI","LBXSPH","LBXSKSI","LBXEPP","LBXSNASI","LBXTIB",
+                     "LBXSTB","LBXSCA","LBXSTP","LBDPCT","LBXSTR","LBXSUA",
+                     "LBDBANO","LBXBAPCT","LBDEONO","LBXEOPCT","LBXHCT",
+                     "LBXHGB","LBDLYMNO","LBXMCHSI","LBXLYPCT","LBXMCVSI",
+                     "LBXMPSI","LBDMONO","LBXMOPCT","LBXPLTSI","LBXRBCSI",
+                     "LBXRDW","LBDNENO","LBXNEPCT","LBXIRN"]
     if print_descriptions is True and var_description is not None:
         for v in phenotype:
             if v in var_description:
