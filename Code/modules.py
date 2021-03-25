@@ -564,7 +564,8 @@ def load_weights(datapath, discovery=True):
                                          .to_dict()
         return([survey_design_replication, weights_replication])
 
-def get_phenotypes(print_descriptions=False, var_description=None, cleaned=False):
+def get_phenotypes(print_descriptions=False, var_description=None, 
+                   cleaned=False):
     '''
     Get the list of phenotypes and print their description if desired
     '''

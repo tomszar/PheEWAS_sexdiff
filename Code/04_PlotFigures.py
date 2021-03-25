@@ -11,8 +11,10 @@ paths  = modules.set_project_paths()
 
 #### READ DATA
 final_results = modules.load_results(paths[2])
+clean_data    = modules.load_clean_data(paths[2])
 var_description = modules.load_var_information(paths[1])
 var_category    = modules.load_var_information(paths[1], description=False)
+phenotypes      = modules.get_phenotypes(cleaned=True)
 
 #### ADD CLARITE REQUIREMENTS
 for i in (4,5,7):
@@ -32,6 +34,7 @@ for i in (4,5,7):
     final_results.results[i]['pvalue_fdr']        = final_results.results[i]['pvalue']
     final_results.results[i] = final_results.results[i].set_index(['Variable','Phenotype'])
 
+#### MANHATTAN PLOTS
 os.chdir(paths[2])
 fig = plt.figure(figsize=(12,8), dpi=300)
 clarite.plot.manhattan({'Females':final_results.results[4], 'Males':final_results.results[5]}, 
