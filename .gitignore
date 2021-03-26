@@ -51,3 +51,8 @@
 # Python
 __pycache__
 
+# Job's output
+*.sh.o*
+*.sh.e*
+*.pbs.o*
+*.pbs.e*
