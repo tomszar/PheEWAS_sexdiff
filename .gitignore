@@ -46,7 +46,7 @@
 
 # VSCode
 .vscode
-.code-workspace
+*.code-workspace
 
 # Python
 __pycache__

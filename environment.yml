@@ -1,8 +1,8 @@
 name: py_clarite
 channels:
+  - defaults
   - bioconda
   - conda-forge
-  - defaults
 dependencies:
   - _libgcc_mutex=0.1=conda_forge
   - _openmp_mutex=4.5=1_gnu
@@ -10,6 +10,7 @@ dependencies:
   - argon2-cffi=20.1.0=py37h8f50634_2
   - async_generator=1.10=py_0
   - attrs=20.2.0=pyh9f0ad1d_0
+  - backcall=0.2.0=pyhd3eb1b0_0
   - backports=1.0=py_2
   - backports.functools_lru_cache=1.6.1=py_0
   - binutils_impl_linux-64=2.35=h18a2f87_9
@@ -19,9 +20,9 @@ dependencies:
   - bwidget=1.9.14=0
   - bzip2=1.0.8=h516909a_3
   - c-ares=1.16.1=h516909a_3
-  - ca-certificates=2020.12.8=h06a4308_0
+  - ca-certificates=2021.1.19=h06a4308_1
   - cairo=1.16.0=h3fc0475_1005
-  - certifi=2020.12.5=py37h89c1867_1
+  - certifi=2020.12.5=py37h06a4308_0
   - cffi=1.14.3=py37he30daa8_0
   - chardet=3.0.4=py37he5f6b98_1008
   - cryptography=3.2.1=py37hc72a4ac_0
@@ -47,8 +48,9 @@ dependencies:
   - importlib-metadata=2.0.0=py_1
   - importlib_metadata=2.0.0=1
   - ipykernel=5.3.4=py37hc6149b9_1
-  - ipython=5.8.0=py37_1
+  - ipython=7.21.0=py37hb070fc8_0
   - ipython_genutils=0.2.0=py_1
+  - jedi=0.17.0=py37_0
   - jinja2=2.11.2=pyh9f0ad1d_0
   - joblib=1.0.0=pyhd8ed1ab_0
   - jpeg=9d=h36c2ea0_0
@@ -95,17 +97,19 @@ dependencies:
   - ncurses=6.2=he1b5a44_2
   - nest-asyncio=1.4.2=pyhd8ed1ab_0
   - notebook=6.1.4=py37hc8dfbb8_1
-  - openssl=1.1.1i=h7f98852_0
+  - openssl=1.1.1k=h27cfd23_0
   - packaging=20.4=pyh9f0ad1d_0
   - pandoc=2.11.0.4=hd18ef5c_0
   - pandocfilters=1.4.2=py_1
   - pango=1.42.4=h7062337_4
+  - parso=0.8.1=pyhd3eb1b0_0
   - pcre=8.44=he1b5a44_0
   - pexpect=4.8.0=pyh9f0ad1d_2
   - pickleshare=0.7.5=py_1003
   - pip=20.2.4=py_0
   - pixman=0.38.0=h516909a_1003
   - prometheus_client=0.8.0=pyh9f0ad1d_0
+  - prompt-toolkit=3.0.5=pyha847dfd_0
   - prompt_toolkit=1.0.15=py_1
   - ptyprocess=0.6.0=py_1001
   - pycparser=2.20=pyh9f0ad1d_2
@@ -328,4 +332,4 @@ dependencies:
     - seaborn==0.11.0
     - statsmodels==0.12.1
     - toml==0.10.2
-prefix: /home/tomas/anaconda3/envs/py_clarite
+prefix: /storage/home/tug156/work/anaconda3/envs/py_clarite
