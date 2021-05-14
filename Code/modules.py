@@ -51,9 +51,17 @@ class NhanesData:
         Remove variables that are not present in the survey weights
         Add extra variables that you don't want removed
         '''
-        keep = set(weights[1].keys()) | set(extra_vars)
+        keep = set(weights.map.keys()) | set(extra_vars)
+        cols = list(set(self.data.columns))
 
-        self.data = self.data[[c for c in list(self.data) if c in keep]]
+        remove_vars = []
+        for i in cols:
+            if i not in keep:
+                print('Removing ' + i + ' variable from NHANES')
+                remove_vars.append(i)
+
+        self.data  = self.data.drop(columns=remove_vars)
+        #self.data = self.data[[c for c in list(self.data) if c in keep]]
 
     def drop_physical_fitness(self, var_category, var_description=None):
         '''
@@ -265,17 +273,17 @@ class NhanesData:
         for current_pheno in phenotypes:
             print(current_pheno)
             drop_phenos  = [p for p in phenotypes if p != current_pheno]
-            ewas_results_temp = clarite.analyze.ewas(phenotype = current_pheno,
+            ewas_results_temp = clarite.analyze.ewas(outcome = current_pheno,
                                                      covariates = covariates,
                                                      min_n = 200,
                                                      data = self.data.drop(columns=drop_phenos),
                                                      regression_kind = 'weighted_glm',
-                                                     survey_design_spec=survey_design)
+                                                     survey_design_spec=survey_design, 
+                                                     report_categorical_betas=True)
             ewas_results.append(ewas_results_temp)
 
         ewas_results = pd.concat(ewas_results)
         return(ewas_results)
-
 
 class WeightData:
     '''
@@ -297,7 +305,7 @@ class WeightData:
         weights_absent = []
         for i in set(vals):
             if i not in cols:
-                print(i + ' is not in cols')
+                print(i + ' weight, is not in data columns')
                 weights_absent.append(i)
 
         #Which variables need those survey weights
@@ -309,6 +317,7 @@ class WeightData:
 
         # Remove those vars from the weights dict
         for i in remove_vars:
+            print('Removing ' + i + ' variable')
             self.map.pop(i)    
 
     def divide_by_nhanes(self, NhanesData1, NhanesData2):
@@ -330,7 +339,8 @@ class WeightData:
                                                         cluster="SDMVPSU",
                                                         nest=True,
                                                         weights=self.map,
-                                                        single_cluster='adjust')
+                                                        single_cluster='adjust',
+                                                        drop_unweighted=True)
         return(survey_design)
 
 class PheEWAS_Results:
@@ -465,7 +475,6 @@ class PheEWAS_Results:
         for i in range(len(self.results)):
             name = self.name[i] + '.csv'
             self.results[i].to_csv(name)
-
 
 def set_project_paths():
     '''
@@ -605,31 +614,6 @@ def get_covariates():
     covariates = ["black", "mexican", "other_hispanic", "other_eth",
                   "SES_LEVEL", "RIDAGEYR", "SDDSRVYR","BMXBMI"]
     return(covariates)
-
-def check_weights(weights):
-    '''
-    Check whether the weights (from load_weights function) mapped are in the
-    columns of the weight dataset and return the variables that need those that
-    are not there
-    '''
-    cols = weights[0].columns
-    vals = set(weights[1].values())
-
-    #Which survey weights are not present
-    weights_absent = []
-    for i in set(vals):
-        if i not in cols:
-            print(i + ' is not in weight dataset')
-            weights_absent.append(i)
-
-    #Which variables need those survey weights
-    remove_vars = []
-    for key, value in weights[1].items():
-        for i in weights_absent:
-            if i == value:
-                remove_vars.append(key)
-
-    return(remove_vars)
 
 def _add_var_from_dict(index_var, var_dict):
     res = []
