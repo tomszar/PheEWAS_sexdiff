@@ -4,8 +4,6 @@ Analysis on sex differences in NHANES dataset. The analysis plan is [here](https
 
 ## Data
 - The NHANES datasets were obtained from already unified dataset by [Patel et al 2016](https://doi.org/10/gdcc5d). The data is stored in [Dryad](https://datadryad.org/stash/dataset/doi:10.5061/dryad.d5h62)
-- [Script to download the data](https://github.com/tomszar/PheEWAS_sexdiff/blob/main/Code/01_GetData.sh)
-
 ## Requirements
 - Create a conda environment with `conda env create -f environment.yml`. This step is already incorporated in the `run_repo.sh` script, so is not necessary.
 - If there is a problem with the environment file, run this instead:
