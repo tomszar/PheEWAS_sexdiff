@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -l nodes=1:ppn=1:rhel7
 #PBS -l walltime=09:00:00
-#PBS -l pmem=32gb
+#PBS -l pmem=8gb
 #PBS -A mah546_c_g_bc_default #or open
 #PBS -j oe
 
@@ -31,8 +31,8 @@ mkdir Results/Plots/Inspect
 echo ""
 echo "------------ DOWNLOADING NHANES ------------"
 cd Data
-wget -q https://datadryad.org/stash/downloads/file_stream/71132
-unzip 71132
+wget -q https://datadryad.org/stash/downloads/file_stream/70319
+unzip 70319
 
 #### 3. RUN ANALYSIS
 echo ""
