@@ -4,6 +4,7 @@ import numpy as np
 import clarite
 import warnings
 import scipy.stats as stats
+from functools import reduce
 from statsmodels.stats.multitest import multipletests
 
 class NhanesData:
@@ -250,8 +251,16 @@ class NhanesData:
         var_categorical = var_types[var_types == 'categorical'].index
         var_continuous  = var_types[var_types == 'continuous'].index
     
-        vartypes = [var_binary, var_categorical, var_continuous, phenotypes, covariates]
-        names    = ['var_binary', 'var_categorical', 'var_continuous', 'phenotypes', 'covariates']
+        vartypes = [var_binary, 
+                    var_categorical, 
+                    var_continuous, 
+                    phenotypes, 
+                    covariates]
+        names    = ['var_binary', 
+                    'var_categorical', 
+                    'var_continuous', 
+                    'phenotypes', 
+                    'covariates']
     
         for i in range(len(vartypes)):
             outname = names[i] + suffix + '.pdf'
@@ -273,13 +282,16 @@ class NhanesData:
         for current_pheno in phenotypes:
             print(current_pheno)
             drop_phenos  = [p for p in phenotypes if p != current_pheno]
+            data_temp = self.data.drop(columns=drop_phenos)
+            data_temp = clarite.modify.rowfilter_incomplete_obs(data_temp,
+                                                    only=[current_pheno])
             ewas_results_temp = clarite.analyze.ewas(outcome = current_pheno,
-                                                     covariates = covariates,
-                                                     min_n = 200,
-                                                     data = self.data.drop(columns=drop_phenos),
-                                                     regression_kind = 'weighted_glm',
-                                                     survey_design_spec=survey_design, 
-                                                     report_categorical_betas=True)
+                                    covariates = covariates,
+                                    min_n = 200,
+                                    data = data_temp,
+                                    regression_kind = 'weighted_glm',
+                                    survey_design_spec=survey_design, 
+                                    report_categorical_betas=True)
             ewas_results.append(ewas_results_temp)
 
         ewas_results = pd.concat(ewas_results)
@@ -348,29 +360,58 @@ class PheEWAS_Results:
     PheEWAS results class
     '''
     
-    def __init__(self, results, name_of_results):
+    def __init__(self, results):
         n_results = len(results)
-        # Sort based on first dataframe
-        for i in range(1, n_results):
-            results[i] = results[i].reindex(results[0].index)
-        self.results = results
-        self.name    = name_of_results
+        # Sort indices
+        for i in range(n_results):
+            results[i] = results[i].sort_index()
 
-    def meta_analyze(self, name, indices=(0,1,2,3)):
+        # Set suffixes 
+        suffixes=('_df','_dm','_rf','_rm')
+        for i in range(n_results):
+            results[i] = results[i].add_suffix(suffixes[i])
+
+        # Merge all datasets
+        results_merged = reduce(lambda left,right: \
+                         pd.merge(left, 
+                                  right, 
+                                  how='inner', 
+                                  left_index=True, 
+                                  right_index=True), 
+                                  results)
+        # There are some duplicated entries, so we will keep the first one
+        keep = ~results_merged.duplicated()
+        results_merged = results_merged[keep]
+
+        self.results = results_merged
+
+    def meta_analyze(self, type='total'):
         '''
-        Perform a meta analysis from the pheewas results, based on the indices selected
+        Perform a meta analysis from the pheewas results, based on the type selected
         '''
+        if type == 'total':
+            suffixes = ('_female','_male')
+            out_suff = ('_total')
+        elif type == 'female':
+            suffixes = ('_df', '_rf')
+            out_suff = ('_female')
+        elif type == 'male':
+            suffixes = ('_dm', '_rm')
+            out_suff = ('_male')
+        
         ws = []
-        for i in indices:
-            w = np.array(1 / np.power(self.results[i]['SE'], 2))
+        for i in suffixes:
+            col = 'SE' + i
+            w   = np.array(1 / np.power(self.results[col], 2))
             ws.append(w)
         
         meta_se = np.sqrt( 1 / sum(ws) )
 
         up_term = np.zeros(meta_se.shape)
         l = 0
-        for i in indices:
-            temp = np.array(self.results[i]['Beta'] * ws[l])
+        for i in suffixes:
+            col  = 'Beta' + i
+            temp = np.array(self.results[col] * ws[l])
             up_term = up_term + temp
             l = l + 1
         
@@ -379,48 +420,37 @@ class PheEWAS_Results:
         pval = 2 * stats.norm.cdf(-abs(zeta))
 
         Ns = np.zeros(meta_se.shape)
-        for i in indices:
-            temp = np.array(self.results[i]['N'])
+        for i in suffixes:
+            col  = 'N' + i
+            temp = np.array(self.results[col])
             Ns   = Ns + temp
 
-        mindex   = self.results[0].index
-        final_df = pd.DataFrame(index=mindex)
-        final_df['SE']   = meta_se
-        final_df['Beta'] = meta_beta
-        final_df['pvalue'] = pval
-        final_df['Variable_pvalue'] = pval
-        final_df['N'] = Ns
+        self.results['SE'+out_suff]   = meta_se
+        self.results['Beta'+out_suff] = meta_beta
+        self.results['pvalue'+out_suff] = pval
+        self.results['Variable_pvalue'+out_suff] = pval
+        self.results['N'+out_suff] = Ns
 
-        self.results.append(final_df)
-        self.name.append(name)
-
-    def estimate_sex_differences(self, indices=(4,5)):
+    def estimate_sex_differences(self):
         '''
         Estimate sex differences, between meta analyzed male and female results
-        Use indices to locate the female and male results
+        Use suffixes to locate the female and male results
         '''
         # Estimate sex differences
-        females_i = indices[0]
-        males_i   = indices[1]
-        t1 = np.array(self.results[females_i]['Beta']) - \
-             np.array(self.results[males_i]['Beta'])
-        t2 = np.sqrt(np.power(np.array(self.results[females_i]['SE']), 2) + \
-                     np.power(np.array(self.results[males_i]['SE']), 2))
+        t1 = np.array(self.results['Beta_female']) - \
+             np.array(self.results['Beta_male'])
+        t2 = np.sqrt(np.power(np.array(self.results['SE_female']), 2) + \
+                     np.power(np.array(self.results['SE_male']), 2))
         zdiff = t1 / t2
         pval  = 2*stats.norm.cdf(-abs(zdiff))
-        mindex   = self.results[0].index
-        final_df = pd.DataFrame(index=mindex)
-        final_df['SE']   = t2
-        final_df['Beta'] = t1
-        final_df['pvalue'] = pval
-        final_df['Variable_pvalue'] = pval
+        self.results['SE_SD']   = t2
+        self.results['Beta_SD'] = t1
+        self.results['pvalue_SD'] = pval
+        self.results['Variable_pvalue_SD'] = pval
 
-        final_df.loc[~final_df['pvalue'].isna(), 'pvalue_bonferroni'] = multipletests(
-                                                            final_df.loc[~final_df['pvalue'].isna(), 'pvalue'],
-                                                            method='bonferroni')[1]
-
-        self.results.append(final_df)
-        self.name.append('sex differences')
+        self.results.loc[~self.results['pvalue_SD'].isna(),
+                        'pvalue_bonferroni_SD'] = multipletests(self.results.loc[~self.results['pvalue_SD'].isna(), 'pvalue_SD'],
+                        method='bonferroni')[1]
 
     def apply_decision_tree(self):
         '''
@@ -428,53 +458,67 @@ class PheEWAS_Results:
         '''
         #### DECISION TREE
         # 1. Z_diff is significant, also both meta female and meta male are significant, and betas are opposite
-        zdiff_sign = self.results[7]['pvalue_bonferroni'] < 0.05
-        both_sign  = ( self.results[4]['pvalue'] < 0.05 ) & ( self.results[5]['pvalue'] < 0.05 )
-        opposite_direction = self.results[4]['Beta'] * self.results[5]['Beta'] < 0
-        keep_qual  = zdiff_sign & both_sign & opposite_direction
+        zdiff_sign = self.results['pvalue_bonferroni_SD'] < 0.05
+        both_sign  = (self.results['pvalue_female'] < 0.05 ) & \
+                     (self.results['pvalue_male'] < 0.05 )
+        opposite_direction = self.results['Beta_female'] * \
+                             self.results['Beta_male'] < 0
+        keep_qual  = zdiff_sign & \
+                     both_sign & \
+                     opposite_direction
 
-        # 2. Overall nominal significance, zdiff significance boferroni, both significant and same direction
-        overall_nominal  = self.results[6]['pvalue'] < 0.05
-        zdiff_bonferroni = self.results[7]['pvalue'] < ( 0.05/ sum(overall_nominal))
-        same_direction   = self.results[4]['Beta'] * self.results[5]['Beta'] > 0
-        keep_quant = overall_nominal & zdiff_bonferroni & same_direction & both_sign
+        # 2. Overall nominal significance, zdiff significance bonferroni, both significant and same direction
+        overall_nominal  = self.results['pvalue_total'] < 0.05
+        zdiff_bonferroni = self.results['pvalue_SD'] < \
+                           (0.05/sum(overall_nominal))
+        same_direction   = self.results['Beta_female'] * \
+                           self.results['Beta_male'] > 0
+        keep_quant = overall_nominal & \
+                     zdiff_bonferroni & \
+                     same_direction & \
+                     both_sign
 
         # 3. Overall nominal significance, zdiff significance boferroni, only one significant
-        one_sig  = ( ( self.results[4]['pvalue'] < 0.05 ) & ( self.results[5]['pvalue'] > 0.05 ) ) | \
-                   ( ( self.results[4]['pvalue'] > 0.05 ) & ( self.results[5]['pvalue'] < 0.05 ) )
-        keep_pure = overall_nominal & zdiff_bonferroni & one_sig
+        one_sig  = ((self.results['pvalue_female'] < 0.05 ) & \
+                    (self.results['pvalue_male'] > 0.05 ) ) | \
+                   ((self.results['pvalue_female'] > 0.05 ) & \
+                    (self.results['pvalue_male'] < 0.05 ) )
+        keep_pure = overall_nominal & \
+                    zdiff_bonferroni & \
+                    one_sig
 
-        for i in range(len(self.results)):
-            self.results[i]['difference_type'] = 'None'
-            self.results[i].loc[keep_qual,'difference_type']  = 'Qualitative'
-            self.results[i].loc[keep_quant,'difference_type'] = 'Quantitative'
-            self.results[i].loc[keep_pure,'difference_type']  = 'Pure'
+        # Adding classification
+        self.results['difference_type'] = 'None'
+        self.results.loc[keep_qual,'difference_type']  = 'Qualitative'
+        self.results.loc[keep_quant,'difference_type'] = 'Quantitative'
+        self.results.loc[keep_pure,'difference_type']  = 'Pure'
 
     def add_variable_names(self, var_description, var_category):
         '''
         add human readable variable names, given in var_description and var_category
         '''
-        for i in range(len(self.results)):
-            index_variable  = self.results[i].index.get_level_values(level='Variable')
-            index_phenotype = self.results[i].index.get_level_values(level='Phenotype')
-            variable_name   = _add_var_from_dict(index_variable, var_description)
-            self.results[i]['Variable_Name']  = variable_name
-            phenotype_name  = _add_var_from_dict(index_phenotype, var_description)
-            self.results[i]['Phenotype_Name'] = phenotype_name
-            variable_category = _add_var_from_dict(index_variable, var_category)
-            self.results[i]['Variable_Category'] = variable_category
-            self.results[i]['Variable']  = index_variable
-            self.results[i]['Phenotype'] = index_phenotype
-            self.results[i] = self.results[i].set_index(['Variable','Variable_Name','Phenotype','Phenotype_Name'])
+        index_variable  = self.results.index.get_level_values(level='Variable')
+        index_phenotype = self.results.index.get_level_values(level='Outcome')
+        variable_name   = _add_var_from_dict(index_variable, var_description)
+        self.results['Variable_Name']  = variable_name
+        phenotype_name  = _add_var_from_dict(index_phenotype, var_description)
+        self.results['Outcome_Name'] = phenotype_name
+        variable_category = _add_var_from_dict(index_variable, var_category)
+        self.results['Variable_Category'] = variable_category
+        self.results['Variable']  = index_variable
+        self.results['Outcome'] = index_phenotype
+        self.results = self.results.set_index(['Variable',
+                                               'Variable_Name',
+                                               'Outcome',
+                                               'Outcome_Name'])
 
     def save_results(self, respath):
         '''
         Save PheEWAS results in respath
         '''
         os.chdir(respath)
-        for i in range(len(self.results)):
-            name = self.name[i] + '.csv'
-            self.results[i].to_csv(name)
+        name = 'FinalResultTable.csv'
+        self.results.to_csv(name)
 
 def set_project_paths():
     '''
