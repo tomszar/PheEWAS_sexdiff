@@ -13,12 +13,17 @@ var_category    = modules.load_var_information(paths[1], description=False)
 # Categorize variables
 # All unknown are continuous
 for i in range(4):
-    split_datasets[i].data = clarite.modify.categorize(split_datasets[i].data)
-    var_unknown            = split_datasets[i].print_unknown_vars(var_description)
-    split_datasets[i].data = clarite.modify.make_continuous(split_datasets[i].data, only=var_unknown)
+    split_datasets[i].data = clarite.modify.\
+                             categorize(split_datasets[i].data)
+    var_unknown            = split_datasets[i].\
+                             print_unknown_vars(var_description)
+    split_datasets[i].data = clarite.modify.\
+                             make_continuous(split_datasets[i].data,
+                             only=var_unknown)
 
 ## Survey weights
-# Much information on the issue on survey weights can be found [here](https://wwwn.cdc.gov/nchs/nhanes/tutorials/module3.aspx)
+# Much information on the issue on survey weights can be found 
+# [here](https://wwwn.cdc.gov/nchs/nhanes/tutorials/module3.aspx)
 weights_discovery   = modules.WeightData(modules.load_weights(paths[1]))
 weights_replication = modules.WeightData(modules.load_weights(paths[1], False))
 
@@ -31,8 +36,12 @@ phenotypes = modules.get_phenotypes(cleaned=True)
 covariates = modules.get_covariates()
 
 # Divide the survey designs based on Nhanes Data
-weights_discovery_divided   = weights_discovery.divide_by_nhanes(split_datasets[0], split_datasets[1])
-weights_replication_divided = weights_replication.divide_by_nhanes(split_datasets[2], split_datasets[3])
+weights_discovery_divided = weights_discovery.\
+                            divide_by_nhanes(split_datasets[0],
+                            split_datasets[1])
+weights_replication_divided = weights_replication.\
+                              divide_by_nhanes(split_datasets[2],
+                              split_datasets[3])
 
 survey_designs = []
 for i in range(4):
@@ -46,17 +55,18 @@ for i in range(4):
         survey_designs.append(survey)
 
 # Run analysis
-name_of_results = ['discovery females', 'discovery males', 'replication females', 'replication males']
-total_results   = []
+total_results = []
 for i in range(4):
-    res = split_datasets[i].run_phe_ewas(phenotypes, covariates, survey_designs[i])
+    res = split_datasets[i].run_phe_ewas(phenotypes,
+                                         covariates, 
+                                         survey_designs[i])
     total_results.append(res)
 
-final_results = modules.PheEWAS_Results(total_results, name_of_results)
+final_results = modules.PheEWAS_Results(total_results)
 
-final_results.meta_analyze('meta females', indices=(0,2))
-final_results.meta_analyze('meta males', indices=(1,3))
-final_results.meta_analyze('meta total', indices=(4,5))
+final_results.meta_analyze(type='female')
+final_results.meta_analyze(type='male')
+final_results.meta_analyze(type='total')
 
 final_results.estimate_sex_differences()
 final_results.apply_decision_tree()
