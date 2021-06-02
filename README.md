@@ -8,7 +8,7 @@ Analysis on sex differences in NHANES dataset. The analysis plan is [here](https
 - Create a conda environment with `conda env create -f environment.yml`. This step is already incorporated in the `run_repo.sh` script, so is not necessary.
 - If there is a problem with the environment file, run this instead:
 ```
-conda create --name py_clarite python=3.7 pandas numpy jupyterlab scipy statsmodels matplotlib
+conda create --name py_clarite python=3.7 pandas numpy jupyterlab scipy statsmodels matplotlib scikit-learn
 conda activate py_clarite
 pip install git+https://github.com/HallLab/clarite-python.git
 ```

@@ -62,6 +62,22 @@ for i in range(4):
                                          survey_designs[i])
     total_results.append(res)
 
+order_files = ['Discovery_Females',
+               'Discovery_Males',
+               'Replication_Females',
+               'Replication_Males']
+
+for i in range(len(total_results)):
+    n_converged     = sum(total_results[i]['Converged'])
+    n_not_converged = sum(total_results[i]['Converged']==False)
+    print('For the ' + 
+          order_files[i] + 
+          ' dataset, there are ' +
+          str(n_converged) + 
+          ' converged tests, and ' +
+          str(n_not_converged) + 
+          ' non-converged\n')
+
 final_results = modules.PheEWAS_Results(total_results)
 
 final_results.meta_analyze(type='female')
