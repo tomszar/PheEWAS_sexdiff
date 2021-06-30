@@ -51,15 +51,17 @@ conda activate py_clarite
 
 echo ""
 echo "-----QC process-----"
-jupyter nbconvert --execute --clear-output Code/02_QC.ipynb #Execute notebook
-jupyter nbconvert --to html Code/02_QC.ipynb #Export it to html for visualization
+cd Code
+jupyter nbconvert --execute --clear-output 02_QC.ipynb #Execute notebook
+jupyter nbconvert --to html 02_QC.ipynb #Export it to html for visualization
 
 echo ""
 echo "-----PheEWAS analysis-----"
-cd Code/
 python 03_Analysis.py
 
 echo ""
 echo "-----Generate report-----"
+jupyter nbconvert --execute --clear-output 05_ReportResults.ipynb 
+jupyter nbconvert --to html 05_ReportResults.ipynb
 
 echo "Job Ended at $(date)"

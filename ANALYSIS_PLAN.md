@@ -2,6 +2,30 @@
 
 The purpose of this analysis is to discover phenome and environment-wide associations that have differential effects between sexes. 
 Most of the pipeline, phenotype and variable selection will follow [Nikki’s plan](https://docs.google.com/document/d/1_2FWZHSnPEc1CqDxdVDRocUD1A3srALysvxBdCpunqY/edit?usp=sharing). 
+
+## Selection of variables
+To assure consistency in the pre-selection of variables, we selected them based on the category used in NHANES.
+Therefore, for phenotypes, we selected `biochemistry`, `blood`, and `hormones` variables. 
+The `biochemistry` category include diverse blood and urine biomarkers.
+The `blood` category includes complete blood count measurements.
+Finally, the `hormones` category includes estimation of different hormones in blood samples.
+
+In the case of exposures, the list is more or less self explanatory: 'alcohol use', 'bacterial infection', 'cotinine','diakyl', 'dioxins', 'food component recall', 'furans', 'heavy metals', 'housing', 'hydrocarbons', 'nutrients', 'occupation', 'pcbs', 'perchlorate', 'pesticides', 'phenols', 'phthalates', 'phytoestrogens', 'polybrominated ethers', 'polyflourochemicals', 'sexual behavior', 'smoking behavior', 'smoking family', 'social support', 'street drug', 'sun exposure', 'supplement use', 'viral infection', and 'volatile compounds'.
+
+In terms of the covariates, those are: 'black', 'mexican', 'other_hispanic', 'other_eth', 'SES_LEVEL', 'RIDAGEYR', 'SDDSRVYR', 'BMXBMI'.
+
+Finally, some categories were left out, such as: 
+	- acrylamide: too few variables in a single survey cycle
+	- aging: too few variables in 2 cycles (telomeres) (might add it)
+	- allergen test: only in one survey cycle
+	- blood pressure: not sure where else to classify them
+	- body measures: not sure where else to classify them
+	- cognitive functioning: not sure where else to classify them
+	- disease: not sure where else to classify them
+	- immunization: not sure where else to classify them
+	- pharmaceuticals: not sure where else to classify them
+	- physical fitness (cardiovascular fitness): not sure where else to classify them
+
 We start with 8 predefined covariates and 55 phenotypes.
 
 1. Selecting participants:
@@ -14,7 +38,7 @@ We start with 8 predefined covariates and 55 phenotypes.
     - Drop physical fitness measurements, indeterminate variables and age groups
     - Drop variables that are transformations of phenotype variables (`LBXSCRINV`,`URXUMASI`,`LBXSIR`)
     - Drop body measure variables
-    - Make an adjustment to the lipid variable (`LBDLDL`) based on statin medication ($LDL=LDL/0.7$)
+    - Make an adjustment to the lipid variable (`LBDLDL`) based on statin medication ($LDL=LDL/0.7$) (Question: shouldn't we control for all medications?)
 3. Split the dataset into four cohorts: discovery females and males, replication females and males
 4. QC process (in each cohort independently):
     - Categorize variables
