@@ -1,11 +1,12 @@
 # Sex differences in PheEWAS analysis plan
 
-The purpose of this analysis is to discover phenome and environment-wide associations that have differential effects between sexes. 
-Most of the pipeline, phenotype and variable selection will follow [Nikki’s plan](https://docs.google.com/document/d/1_2FWZHSnPEc1CqDxdVDRocUD1A3srALysvxBdCpunqY/edit?usp=sharing). 
+The purpose of this analysis is to discover phenome and environment-wide associations that have differential effects between sexes.
+Most of the pipeline, phenotype and variable selection will follow [Nikki’s plan](https://docs.google.com/document/d/1_2FWZHSnPEc1CqDxdVDRocUD1A3srALysvxBdCpunqY/edit?usp=sharing).
 
 ## Selection of variables
+
 To assure consistency in the pre-selection of variables, we selected them based on the category used in NHANES.
-Therefore, for phenotypes, we selected `biochemistry`, `blood`, and `hormones` variables. 
+Therefore, for phenotypes, we selected `biochemistry`, `blood`, and `hormones` variables.
 The `biochemistry` category include diverse blood and urine biomarkers.
 The `blood` category includes complete blood count measurements.
 Finally, the `hormones` category includes estimation of different hormones in blood samples.
@@ -14,17 +15,18 @@ In the case of exposures, the list is more or less self explanatory: 'alcohol us
 
 In terms of the covariates, those are: 'black', 'mexican', 'other_hispanic', 'other_eth', 'SES_LEVEL', 'RIDAGEYR', 'SDDSRVYR', 'BMXBMI'.
 
-Finally, some categories were left out, such as: 
-	- acrylamide: too few variables in a single survey cycle
-	- aging: too few variables in 2 cycles (telomeres) (might add it)
-	- allergen test: only in one survey cycle
-	- blood pressure: not sure where else to classify them
-	- body measures: not sure where else to classify them
-	- cognitive functioning: not sure where else to classify them
-	- disease: not sure where else to classify them
-	- immunization: not sure where else to classify them
-	- pharmaceuticals: not sure where else to classify them
-	- physical fitness (cardiovascular fitness): not sure where else to classify them
+Finally, some categories were left out, such as:
+
+- acrylamide: too few variables in a single survey cycle
+- aging: too few variables in 2 cycles (telomeres) (might add it)
+- allergen test: only in one survey cycle
+- blood pressure: not sure where else to classify them
+- body measures: not sure where else to classify them
+- cognitive functioning: not sure where else to classify them
+- disease: not sure where else to classify them
+- immunization: not sure where else to classify them
+- pharmaceuticals: not sure where else to classify them
+- physical fitness (cardiovascular fitness): not sure where else to classify them
 
 We start with 8 predefined covariates and 55 phenotypes.
 
@@ -54,12 +56,12 @@ We start with 8 predefined covariates and 55 phenotypes.
     - Log-transform continuos variables that are highly skewed (greater than -0.5 or 0.5)
     - Normalize variables (min-max approach)
     - Remove outliers
-13. Split back into the four cohorts
-14. Remove unnecessary variables (male, female, and white)
+7. Split back into the four cohorts
+8. Remove unnecessary variables (male, female, and white)
 
-Given the complexity of the EWAS models, it is easier and more convenient to run a stratified EWAS and test for sex differences after. 
-Therefore, we will run four separate EWAS models for each cohort independently and estimate the corresponding parameters ($\beta$, $se$). 
-Winkler et al (2017) recommends following two approaches in parallel in genome-wide association studies if there is no prior hypothesis on sex differences: to run a genome-wide difference test between sexes to search for opposite effects, and another approach that first filters for an overall association and then test for the difference between sexes to search for those with differences in the size of the effect, or for those that there is no effect in one sex. 
+Given the complexity of the EWAS models, it is easier and more convenient to run a stratified EWAS and test for sex differences after.
+Therefore, we will run four separate EWAS models for each cohort independently and estimate the corresponding parameters ($\beta$, $se$).
+Winkler et al (2017) recommends following two approaches in parallel in genome-wide association studies if there is no prior hypothesis on sex differences: to run a genome-wide difference test between sexes to search for opposite effects, and another approach that first filters for an overall association and then test for the difference between sexes to search for those with differences in the size of the effect, or for those that there is no effect in one sex.
 The following categories will be used to refer to those differences in effects:
 
 - Qualitative: exposures that have opposite effects between sexes
@@ -72,9 +74,9 @@ Considering two sexes, $i=1,2$, let $Y_p$ be a vector of phenotypes, where $p=1.
 
 $$
 Y_{ip} = X_{iq}\beta + \epsilon
-$$ 
+$$
 
-Our interest will be focused on $\beta_{ipq}$ which is the beta coefficient of the effect of the environmental exposure $q$ on phenotype $p$, in sex $i$, with its corresponding standard error $se_{ipq}$. 
+Our interest will be focused on $\beta_{ipq}$ which is the beta coefficient of the effect of the environmental exposure $q$ on phenotype $p$, in sex $i$, with its corresponding standard error $se_{ipq}$.
 For the phenome-environment-wide sex difference test we will estimate the *difference test* as:
 
 $$
@@ -85,7 +87,7 @@ We will use the Bonferroni correction for multiple testing.
 
 ## Filtering by overall association
 
-The second pipeline we will use to estimate sex differences incorporates a filtering based on overall association before the difference test. 
+The second pipeline we will use to estimate sex differences incorporates a filtering based on overall association before the difference test.
 On a stratified approach, the *overall test* is given by:
 
 $$
@@ -98,11 +100,11 @@ Both the filtering by overall test and the subsequent difference test will use t
 
 Finally, the pipeline will follow these steps:
 
-1. To detect qualitative effect differences we will run the difference test and select those with a Bonferroni corrected $\alpha$. 
+1. To detect qualitative effect differences we will run the difference test and select those with a Bonferroni corrected $\alpha$.
 Then, we will keep only those with opposite effects (different directions of $\beta$ coefficients, and nominally significant in both sexes)
-2. To detect quantitative and pure effect differences we will first filter by an overall effect $p-value < 0.05$ and then select those with a difference test with a Bonferroni corrected $\alpha$. 
+2. To detect quantitative and pure effect differences we will first filter by an overall effect $p-value < 0.05$ and then select those with a difference test with a Bonferroni corrected $\alpha$.
 We will classify those with $\beta$ coefficients in the same direction and with a nominal p-value in both sexes as a quantitative difference, while those with a nominal p-value in only one sex will be classified as a pure difference
 
-# References
+## References
 
 Winkler, Thomas W., Anne E. Justice, L. Adrienne Cupples, Florian Kronenberg, Zoltán Kutalik, Iris M. Heid, and GIANT consortium. 2017. “Approaches to Detect Genetic Effects That Differ between Two Strata in Genome-Wide Meta-Analyses: Recommendations Based on a Systematic Evaluation.” PloS One 12 (7): e0181038. https://doi.org/10/gbqbnm.
