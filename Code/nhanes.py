@@ -1149,32 +1149,44 @@ class PheEWAS_Results:
 
     def apply_decision_tree(self):
         '''
-        apply the decision tree
+        Apply the decision tree base on Winkler et al 2017 without any
+        previous hypothesis.
+        It will select all Bonferroni corrected associations that are
+        different between sexes, and apply a filtering by overall association
+        as well.
 
         Returns
         ----------
         data: pd.Dataframe
             updated dataframe with the type of difference
         '''
-        #### DECISION TREE
-        # 1. Z_diff is significant, also both meta female and meta male are significant, and betas are opposite
-        zdiff_sign = self.data['pvalue_bonferroni_SD'] < 0.05
+        print('-----Applying decision criteria-----')
+        #### Total difference
+        total_diff = self.data['pvalue_bonferroni_SD'] < 0.05
+
+        #### Filtering first
+        filter_t   = 10 ** -5
+        overall_filter = self.data['pvalue_total'] < filter_t
+        bonf_t = 0.05 / sum(overall_filter)
+        filter_diff = self.data['pvalue_SD'] < bonf_t
+
+        significants = total_diff & \
+                       filter_diff    
+
+        #### CLASSIFICATION
+        # 1. Sinificant, both meta female and meta male are significant, and betas are opposite
         both_sign  = (self.data['pvalue_female'] < 0.05 ) & \
                      (self.data['pvalue_male'] < 0.05 )
         opposite_direction = self.data['Beta_female'] * \
                              self.data['Beta_male'] < 0
-        keep_qual  = zdiff_sign & \
+        keep_qual  = significants & \
                      both_sign & \
                      opposite_direction
 
         # 2. Overall nominal significance, zdiff significance bonferroni, both significant and same direction
-        overall_nominal  = self.data['pvalue_total'] < 0.05
-        zdiff_bonferroni = self.data['pvalue_SD'] < \
-                           (0.05/sum(overall_nominal))
         same_direction   = self.data['Beta_female'] * \
                            self.data['Beta_male'] > 0
-        keep_quant = overall_nominal & \
-                     zdiff_bonferroni & \
+        keep_quant = significants & \
                      same_direction & \
                      both_sign
 
@@ -1183,9 +1195,18 @@ class PheEWAS_Results:
                     (self.data['pvalue_male'] > 0.05 ) ) | \
                    ((self.data['pvalue_female'] > 0.05 ) & \
                     (self.data['pvalue_male'] < 0.05 ) )
-        keep_pure = overall_nominal & \
-                    zdiff_bonferroni & \
+        keep_pure = significants & \
                     one_sig
+
+        print('There are ' + 
+              str(sum(significants)) +
+              ' significant results, ' + 
+              str(sum(keep_qual)) + 
+              ' qualitative, ' +
+              str(sum(keep_quant)) +
+              ' quantitative, and ' +
+              str(sum(keep_pure)) +
+              ' pure')    
 
         # Adding classification
         self.data['difference_type'] = 'None'
