@@ -1170,7 +1170,7 @@ class PheEWAS_Results:
         bonf_t = 0.05 / sum(overall_filter)
         filter_diff = self.data['pvalue_SD'] < bonf_t
 
-        significants = total_diff & \
+        significants = total_diff | \
                        filter_diff    
 
         #### CLASSIFICATION
