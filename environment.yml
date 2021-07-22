@@ -34,7 +34,6 @@ dependencies:
   - gstreamer=1.14.0=h28cd5cc_2
   - icu=58.2=he6710b0_3
   - idna=2.10=pyhd3eb1b0_0
-  - importlib-metadata=4.0.1=py37h89c1867_0
   - importlib_metadata=4.0.1=hd8ed1ab_0
   - ipykernel=5.5.5=py37h085eea5_0
   - ipython=7.23.1=py37h085eea5_0
@@ -85,8 +84,6 @@ dependencies:
   - ncurses=6.2=he6710b0_1
   - nest-asyncio=1.5.1=pyhd3eb1b0_0
   - notebook=6.4.0=pyha770c72_0
-  - numpy=1.20.2=py37h62767a5_0
-  - numpy-base=1.20.2=py37he2ba247_0
   - olefile=0.46=py37_0
   - openblas=0.3.15=pthreads_h4748800_1
   - openssl=1.1.1k=h7f98852_0
@@ -146,9 +143,15 @@ dependencies:
   - zlib=1.2.11=h7b6447c_3
   - zstd=1.5.0=ha95c52a_0
   - pip:
-    - clarite==1.2.0.post2+g758abab
+    - clarite==2.2.0
     - click==8.0.0
-    - rpy2==3.4.4
+    - coloredlogs==15.0.1
+    - cyvcf2==0.30.9
+    - humanfriendly==9.2
+    - importlib-metadata==2.1.1
+    - numpy==1.21.1
+    - pandas-genomics==0.11.0
+    - rpy2==3.4.5
     - seaborn==0.11.1
     - tzlocal==2.1
 prefix: /storage/home/tug156/work/software/anaconda3/envs/py_clarite
