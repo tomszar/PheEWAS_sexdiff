@@ -380,6 +380,26 @@ class NhanesData:
               str(n_expo) + 
               ' exposures')
 
+    def print_how_many_participants(self):
+        '''
+        Print how many participants in each cohort 
+        '''
+        info_to_print = []
+        total = 0
+        for i in range(len(self.data)):
+            n_participants = len(self.data[0])
+            total = total + n_participants
+            tp = str(n_participants) + \
+                 ' in ' + \
+                 str(self.cohort[i]) + ' ' + \
+                 str(self.sex[i])
+            info_to_print.append(tp)
+        print('There are ' + 
+              ', '.join(info_to_print) + 
+              ' and ' + 
+              str(total) + 
+              ' participants')
+
     def make_unknown_continuous(self):
         '''
         Make unknown variables continuous
