@@ -719,38 +719,14 @@ class NhanesData:
         warnings.filterwarnings('ignore') # Ignore pandas warnings
 
         total_results = []
-        count = 0
-        covs = self.covariates.copy()
-        covs.remove('SDDSRVYR')
-        for current_pheno in self.phenotypes:
-            print('-----Running PheEWAS for ' + 
-                   current_pheno + 
-                   '-----')
-            drop_phenos  = [p for p in self.phenotypes if p != current_pheno]
-            pheno_results = []
-            for i in range(len(self.data)):
-                data_temp = self.data[i].drop(columns=drop_phenos + \
-                                                      ['SDDSRVYR'])
-                data_temp = clarite.modify.\
-                            rowfilter_incomplete_obs(data_temp,
-                                                     only=[current_pheno])
-                res_temp = clarite.analyze.\
-                                    ewas(outcome=current_pheno,
-                                         covariates=covs,
-                                         min_n=200,
-                                         data=data_temp,
-                                         regression_kind='weighted_glm',
-                                         survey_design_spec=weights.design[i], 
-                                         report_categorical_betas=True)
-                pheno_results.append(res_temp)
-            if count == 0:
-                total_results = pheno_results
-            else:
-                for i in range(len(total_results)):
-                    total_results[i] = pd.concat([total_results[i],
-                                                 pheno_results[i]])
-            count = count + 1
-
+        for i in range(len(self.data)):
+            res_temp = clarite.analyze.association_study(data=self.data[i],
+                                           outcomes=self.phenotypes,
+                                           covariates=self.covariates,
+                                           regression_kind='weighted_glm',
+                                           survey_design_spec=weights.design[i],
+                                           report_categorical_betas=True)
+            total_results.append(res_temp)
         results = PheEWAS_Results(total_results)
         return(results)
 
