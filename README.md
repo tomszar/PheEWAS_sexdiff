@@ -32,7 +32,7 @@ conda env create -f environment.yml
 If the installation fails, you can install the environment manually, by running the following:
 
 ```bash
-conda create --name py_clarite python=3.9 pandas numpy jupyterlab scipy statsmodels matplotlib scikit-learn
+conda create --name py_clarite python=3.9 pandas numpy jupyterlab scipy statsmodels matplotlib scikit-learn r rpy2
 conda activate py_clarite
 pip install clarite
 ```
