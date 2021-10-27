@@ -43,9 +43,23 @@ pip install clarite
 
 ## Replicate the analysis
 
-To replicate the analysis, two bash scripts are provided; one is intended to run on a server, `run_server.sh`, while the other is intended to run in a local computer `run_local.sh`.
-The `run_server.sh` file was ran at the Penn State [Roar system](https://www.icds.psu.edu/computing-services/roar-user-guide/), and used Roar's parameters.
-If you are running the script on another server, you might want to tweak the parameters of the script.
+To replicate the analysis, two bash scripts are provided; one is intended to run on a server, `run_server.sh`, while the other is intended to run on a local computer `run_local.sh`.
 
-- [Initial cleaning and QC](https://nbviewer.jupyter.org/github/tomszar/PheEWAS_sexdiff/blob/main/Code/02_QC.ipynb)
-- [Sex difference analysis](https://nbviewer.jupyter.org/github/tomszar/PheEWAS_sexdiff/blob/main/Code/03_Analysis.ipynb)
+### On a server
+
+On your server terminal, type
+
+```bash
+qsub run_server.sh
+```
+
+The parameters used in the script are the ones used in the Penn State Roar server. Depending on the system you will need to modify, remove, or add parameters to the script. The script also contains the creation and activation of the conda environment; you can alternatively make sure to install the environment before running the bash script and comment those lines.
+
+### On a local computer
+
+On the terminal type:
+
+```bash
+conda activate adni_project
+bash run_local.sh > run_local.log
+```
