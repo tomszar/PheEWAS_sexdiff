@@ -125,7 +125,7 @@ class NhanesRaw:
     def categorize_variables(self):
         '''
         Categorize variables using clarite and remove constant variables,
-        except covariates
+        except covariates, done for each cohort independently.
 
         Returns
         ----------
@@ -133,24 +133,47 @@ class NhanesRaw:
             raw data with variables categorized and constant variables removed
         '''
         print('-----Categorizing data-----')
-        self.data = clarite.modify.categorize(self.data)
+        
+        # Make categorization in each and decide on how to achieve agreement
+        to_remove = []
+        var_types = []
+        for i,b in enumerate(self.cohorts_bool):
+            print('Categorizing in ' + 
+                  self.cohorts[i] + 
+                  ' cohort')
+            temp_data = clarite.modify.categorize(self.data[b],
+                                                  cont_min=10)
+            var_types    = clarite.describe.get_types(temp_data)
+            var_constant = var_types[var_types == 'constant'].index
+            var_unknown  = var_types[var_types == 'unknown'].index
+            to_remove.extend(var_constant)
+            to_remove.extend(var_unknown)
+            for c in temp_data.columns:
+                if c not in self.data:
+                    to_remove.append(c)
+        
+        to_remove = set(to_remove)
+        print('Removing ' + 
+              str(len(to_remove)) +
+              ' variables (constant, only NAs ' + 
+              'and continuous with less than 10 values)')
+        self._remove_vars_in_lists(list(to_remove))
+        
+        self.data = clarite.modify.categorize(self.data,
+                                              cont_min=10)
         self._update_lists_from_data()
 
         var_types    = clarite.describe.get_types(self.data)
-        var_constant = var_types[var_types == 'constant'].index
-        var_unknown  = var_types[var_types == 'unknown'].index
-        print('Removing ' + 
-              str(len(var_constant)) +
-              ' constant variables')
-        self._remove_vars_in_lists(list(var_constant))
+        var_unknown  = var_types[var_types == 'unknown'].index 
 
-        print('Categorizing ' +
-              str(len(var_unknown)) +
-              ' unknown variables as continuous')
-
-        self.data = clarite.modify.\
-                            make_continuous(self.data,
-                                            only=var_unknown)
+        if len(var_unknown) > 0:
+            print('Categorizing ' +
+                  str(len(var_unknown)) +
+                  ' unknown variables as continuous')
+    
+            self.data = clarite.modify.\
+                                make_continuous(self.data,
+                                                only=var_unknown)
         print('')        
 
     def clarite_filters(self):
@@ -184,7 +207,7 @@ class NhanesRaw:
                 removed   = self._get_removed_vars(temp_data)
                 remove_vars = remove_vars + list(removed)
             
-            remove_vars =  set(remove_vars)
+            remove_vars = set(remove_vars)
             print('Removing ' +
                   str(len(remove_vars)) + 
                   ' variables across cohorts')
@@ -293,7 +316,7 @@ class NhanesRaw:
 
         #Remove vars
         remove_vars = []
-        for i in range(1, len(where_index[0]), 2):
+        for i in range(0, len(where_index[0]), 2):
             var = phenos_expos[where_index[0][i]]
             remove_vars.append(var)
 
