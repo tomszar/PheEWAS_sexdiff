@@ -92,9 +92,10 @@ class NhanesClean:
 
         var_types    = clarite.describe.get_types(self.data)
         var_unknown  = var_types[var_types == 'unknown'].index
-        self.data = clarite.modify.\
-                            make_continuous(self.data,
-                                            only=var_unknown)
+        if len(var_unknown) > 0:
+            self.data = clarite.modify.\
+                                make_continuous(self.data,
+                                                only=var_unknown)
         print('') 
 
     def create_survey_design(self):
