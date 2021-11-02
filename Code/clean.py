@@ -292,6 +292,10 @@ class NhanesRaw:
         '''
         print('-----Removing continuous outliers-----')
         var_continuous  = self._get_data_type()
+        for c in self.covariates:
+            if c in var_continuous:
+                var_continuous.remove(c)
+
         self.data = clarite.modify.\
                            remove_outliers(self.data,
                                            only = var_continuous)
