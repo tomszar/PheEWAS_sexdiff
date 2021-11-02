@@ -291,7 +291,7 @@ class NhanesRaw:
             data with continuous outliers removed
         '''
         print('-----Removing continuous outliers-----')
-        var_continuous  = self._get_data_type()
+        var_continuous  = list(self._get_data_type())
         for c in self.covariates:
             if c in var_continuous:
                 var_continuous.remove(c)
