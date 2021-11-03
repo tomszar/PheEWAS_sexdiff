@@ -270,8 +270,15 @@ class PHE_EWAS:
         # so we will keep the first one
         keep = ~results_merged.duplicated()
         results_merged = results_merged[keep]
+        
+        # Keep only converged results
+        converged_cols = ['Converged_df',
+                          'Converged_rf',
+                          'Converged_dm',
+                          'Converged_rm']
+        keep = results_merged[converged_cols].all(axis=1)
 
-        self.data = results_merged
+        self.data = results_merged[keep]
 
     def meta_analyze(self, 
                      type:str='total'):
