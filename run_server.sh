@@ -31,8 +31,9 @@ mkdir Results/Plots/Inspect
 echo ""
 echo "------------ DOWNLOADING NHANES ------------"
 cd Data
-wget -q https://datadryad.org/stash/downloads/file_stream/70319
-unzip 70319
+wget -q https://datadryad.org/api/v2/datasets/doi%253A10.5061%252Fdryad.d5h62/download
+unzip download
+unzip nh_99-06.zip
 
 #### 3. RUN ANALYSIS
 echo ""
