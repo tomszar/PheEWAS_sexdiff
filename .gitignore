@@ -56,3 +56,4 @@ __pycache__
 *.sh.e*
 *.pbs.o*
 *.pbs.e*
+*.log
