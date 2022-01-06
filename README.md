@@ -60,6 +60,6 @@ The parameters used in the script are the ones used in the Penn State Roar serve
 On the terminal type:
 
 ```bash
-conda activate adni_project
+conda activate py_clarite
 bash run_local.sh > run_local.log
 ```
