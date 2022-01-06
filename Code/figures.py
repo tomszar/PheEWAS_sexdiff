@@ -98,11 +98,14 @@ def results_to_networkx(results):
             G.nodes[n]['group'] = 'exposure'
             G.nodes[n]['category'] = (results[rows]['Variable_Category']).\
                                                               unique()[0]
+            G.nodes[n]['name'] = (results[rows]['Variable_Category']).\
+                                                              unique()[0]
             G.nodes[n]['order'] = order_by[G.nodes[n]['category']]
         else:
             G.nodes[n]['group'] = 'phenotype'
             ind = ph_descript[ph_descript[0] == n].index.to_list()[0]
             G.nodes[n]['category'] = ph_descript.iloc[ind,2]
+            G.nodes[n]['name'] = ph_descript.iloc[ind,1]
             G.nodes[n]['order'] = order_by[G.nodes[n]['category']]
 
     return G
@@ -144,18 +147,25 @@ def novel_circos(nt: pd.DataFrame,
                 for node, data in df.iterrows():
                     x, y = nv.polcart.to_cartesian(r=radius,
                                     theta=nv.geometry.item_theta(nodes, node))
-                    degrees[node] = nv.polcart.to_degrees(\
-                                       nv.geometry.item_theta(nodes,
-                                                              node))
                     pos[node] = np.array([x, y])
+                    xd, yd = nv.polcart.to_cartesian(r=radius * 1.1,
+                                    theta=nv.geometry.item_theta(nodes, node))
+                    deg = nv.polcart.to_degrees(\
+                                     nv.geometry.item_theta(nodes,
+                                                            node))
+                    degrees[node] = np.array([xd, yd, deg])
 
     else:
         for node, data in nt.iterrows():
             x, y = nv.polcart.to_cartesian(r=radius,
                                 theta=nv.geometry.item_theta(nodes, node))
-            degrees[node] = nv.polcart.to_degrees(nv.geometry.item_theta(nodes,
-                                                                         node))
             pos[node] = np.array([x, y])
+            xd, yd = nv.polcart.to_cartesian(r=radius * 1.1,
+                                theta=nv.geometry.item_theta(nodes, node))
+            deg = nv.polcart.to_degrees(\
+                             nv.geometry.item_theta(nodes,
+                                                    node))
+            degrees[node] = np.array([xd, yd, deg])
     return pos, degrees
 
 def plot_circos(G,
@@ -231,18 +241,26 @@ def plot_circos(G,
     
     for r in nt.iterrows():
         if r[1]['group'] == 'phenotype':
-            ax.text(x = pos[r[0]][0],
-                    y = pos[r[0]][1],
-                    s = r[0],
-                    rotation = degrees[r[0]])
+            x = degrees[r[0]][0]
+            y = degrees[r[0]][1]
+            deg = degrees[r[0]][2]
+            if -90 <= deg <= 90:
+                rot = deg
+            else:
+                rot = deg - 180
+            ha, va = annotate.text_alignment(x, y)
+            ax.annotate(xy = (x, y),
+                        ha = ha,
+                        va = 'center',
+                        text = r[1]['name'],
+                        rotation=rot,
+                        rotation_mode='anchor',
+                        size=6)
 
     fontchanges = {'fontsize': 20}
-                   #'fontweight': 50}
-
     ax.set_title(title,
                  fontdict=fontchanges,
-                 pad=25)
-    
+                 pad=25) 
     nv.plots.rescale(G)
     nv.plots.aspect_equal()
     nv.plots.despine()
