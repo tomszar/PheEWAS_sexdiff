@@ -1,0 +1,35 @@
+LBXSAL,Albumin,albumin
+URXUMA,Albumin urine,albumin
+URXUMASI,Albumin urine SI,albumin
+LBXBAP,BAP,AP
+LBXSAPSI,Alkaline phosphotase,AP
+LBXSGTSI,GGT,GGT
+LBXSCLSI,Chloride,electrolyte
+LBXSNASI,Sodium,electrolyte
+LBXGH,Glycohemoglobin,glucose
+LBXHCY,Homocysteine,homocysteine
+LBXCRP,C-reactive protein,inflammation
+LBXSIR,Iron refigerated,iron
+LBXSCR,Creatinine,kidney function
+LBXSBU,BUN,kidney function
+URXUCR,Creatinine urine,kidney function
+LBDHDL,HDL-cholesterol,lipids
+LBXSCH,Cholesterol,lipids
+LBXTC,Total Cholesterol,lipids
+LBXSTR,Triglycerides,lipids
+LBXTR,Triglyceride,lipids
+LBXSOSSI,Osmolality SI,osmolality
+LBXMCHSI,Mean cell hemoglobin,red blood cells
+LBXMCVSI,Mean cell volume,red blood cells
+LBXRBCSI,Red cell count SI,red blood cells
+LBXSTB,Total bilirubin,red blood cells
+LBXHCT,Hematocrit,red blood cells
+LBXHGB,Hemoglobin,red blood cells
+LBXSTP,Total protein,total protein
+LBXMMA,Methylmalonic acid,MMA
+LBXLYPCT,Lymphocyte percent,white blood cells
+LBDMONO,Monocyte number,white blood cells
+LBDNENO,Segmented neutrophils number,white blood cells
+LBXWBCSI,White blood cell count SI,white blood cells
+LBDLYMNO,Lymphocyte number,white blood cells
+LBXNEPCT,Segmented neutrophils percent,white blood cells
