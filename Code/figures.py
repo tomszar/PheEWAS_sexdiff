@@ -2,6 +2,7 @@ import networkx as nx
 import pandas as pd
 import nxviz as nv
 import numpy as np
+import scipy.stats as st
 import matplotlib.pyplot as plt
 from nxviz import annotate
 
@@ -21,17 +22,18 @@ def load_results(type: str = 'all'):
     results: pd.DataFrame
         results table
     '''
-    results   = pd.read_csv('../Results/ResultsTable.csv')
+    results = pd.read_csv('../Results/ResultsTable.csv')
     converged_columns = ['Converged_df',
                          'Converged_rf',
                          'Converged_dm',
                          'Converged_rm']
-    converged = results.loc[:,converged_columns].all(axis=1)
+    converged = results.loc[:, converged_columns].all(axis=1)
     results = results.loc[converged]
     if type == 'significant':
         keep_rows = ~(results['difference_type'] == 'None')
-        results   = results[keep_rows]
+        results = results[keep_rows]
     return results
+
 
 def results_to_networkx(results):
     '''
@@ -46,13 +48,13 @@ def results_to_networkx(results):
     Returns
     ----------
     G: nx.Graph
-        network graph 
+        network graph
     '''
     order_by = {'cotinine': 0,
                 'smoking behavior': 1,
                 'smoking family': 2,
                 'heavy metals': 3,
-                'pcbs': 4, 
+                'pcbs': 4,
                 'volatile compounds': 5,
                 'phthalates': 6,
                 'dioxins': 7,
@@ -78,17 +80,18 @@ def results_to_networkx(results):
     ph_descript = pd.read_csv('../Data/phenotype_descriptions.csv',
                               header=None)
 
-    G = nx.from_pandas_edgelist(results, 
-                                source = 'Variable', 
-                                target = 'Outcome')
+    G = nx.from_pandas_edgelist(results,
+                                source='Variable',
+                                target='Outcome')
     # Whether the association is significant
     threshold = 0.05
     for v, o in G.edges:
-        out = results['Outcome']  == o# o and v are outcome and variables
+        # o and v are outcome and variables
+        out = results['Outcome'] == o
         var = results['Variable'] == v
         row = results[var & out]
         if len(row) == 0:
-            out = results['Outcome']  == v# o and v are outcome and variables
+            out = results['Outcome'] == v
             var = results['Variable'] == o
             row = results[var & out]
 
@@ -96,36 +99,34 @@ def results_to_networkx(results):
             G.edges[v, o]['significant_female'] = 1
         else:
             G.edges[v, o]['significant_female'] = 0
-        
         if float(row['pvalue_male']) < threshold:
             G.edges[v, o]['significant_male'] = 1
         else:
             G.edges[v, o]['significant_male'] = 0
-        
         G.edges[v, o]['beta_female'] = float(row['Beta_female'])
         G.edges[v, o]['beta_male'] = float(row['Beta_male'])
-    
     for n in G.nodes:
         if n in list(results['Variable']):
             rows = results['Variable'] == n
             G.nodes[n]['group'] = 'exposure'
             G.nodes[n]['category'] = (results[rows]['Variable_Category']).\
-                                                              unique()[0]
+                unique()[0]
             G.nodes[n]['name'] = (results[rows]['Variable_Category']).\
-                                                              unique()[0]
+                unique()[0]
             G.nodes[n]['order'] = order_by[G.nodes[n]['category']]
         else:
             G.nodes[n]['group'] = 'phenotype'
             ind = ph_descript[ph_descript[0] == n].index.to_list()[0]
-            G.nodes[n]['category'] = ph_descript.iloc[ind,2]
-            G.nodes[n]['name'] = ph_descript.iloc[ind,1]
+            G.nodes[n]['category'] = ph_descript.iloc[ind, 2]
+            G.nodes[n]['name'] = ph_descript.iloc[ind, 1]
             G.nodes[n]['order'] = order_by[G.nodes[n]['category']]
 
     return G
 
+
 def novel_circos(nt: pd.DataFrame,
-                 group_by = None,
-                 sort_by = None,
+                 group_by=None,
+                 sort_by=None,
                  radius: float = None):
     '''
     Circos layout with separations between groups defined in group_by
@@ -139,15 +140,15 @@ def novel_circos(nt: pd.DataFrame,
 
     if radius is None:
         radius = nv.geometry.circos_radius(len(nodes))
-    
+
     if group_by:
         # Add empty elements at the end of each group to separate them
         df2 = pd.DataFrame.from_dict({'category': ['empty'],
                                       'group': ['empty'],
                                       'size': [0]})
-        df2 = pd.concat([df2]*3,
+        df2 = pd.concat([df2] * 3,
                         ignore_index=True)
-        xt = pd.DataFrame(columns = nt.columns)    
+        xt = pd.DataFrame(columns=nt.columns)
         for grp, df in nt.groupby(group_by):
             df = df.append(df2)
             xt = xt.append(df)
@@ -159,27 +160,32 @@ def novel_circos(nt: pd.DataFrame,
             if grp != 'empty':
                 for node, data in df.iterrows():
                     x, y = nv.polcart.to_cartesian(r=radius,
-                                    theta=nv.geometry.item_theta(nodes, node))
+                               theta=nv.geometry.item_theta(nodes,
+                                                            node))
                     pos[node] = np.array([x, y])
                     xd, yd = nv.polcart.to_cartesian(r=radius * 1.1,
-                                    theta=nv.geometry.item_theta(nodes, node))
-                    deg = nv.polcart.to_degrees(\
-                                     nv.geometry.item_theta(nodes,
-                                                            node))
+                                 theta=nv.geometry.item_theta(nodes,
+                                                              node))
+                    deg = nv.polcart.to_degrees(
+                        nv.geometry.item_theta(nodes,
+                                               node))
                     degrees[node] = np.array([xd, yd, deg])
 
     else:
         for node, data in nt.iterrows():
             x, y = nv.polcart.to_cartesian(r=radius,
-                                theta=nv.geometry.item_theta(nodes, node))
+                       theta=nv.geometry.item_theta(nodes,
+                                                    node))
             pos[node] = np.array([x, y])
             xd, yd = nv.polcart.to_cartesian(r=radius * 1.1,
-                                theta=nv.geometry.item_theta(nodes, node))
-            deg = nv.polcart.to_degrees(\
-                             nv.geometry.item_theta(nodes,
-                                                    node))
+                         theta=nv.geometry.item_theta(nodes,
+                                                      node))
+            deg = nv.polcart.to_degrees(
+                nv.geometry.item_theta(nodes,
+                                       node))
             degrees[node] = np.array([xd, yd, deg])
     return pos, degrees
+
 
 def plot_circos(G,
                 ax,
@@ -191,12 +197,12 @@ def plot_circos(G,
     nt = nv.utils.node_table(G)
     nt['size'] = 1
     et = nv.utils.edge_table(G)
-    
+
     ax = plt.gca()
     pos, degrees = novel_circos(nt,
                                 group_by='group',
                                 sort_by='order')
-    
+
     node_color = group_colormap(nt['category'])
     alpha = nv.nodes.transparency(nt, alpha_by=None)
     size = nv.nodes.node_size(nt, 'size')
@@ -207,7 +213,7 @@ def plot_circos(G,
                                    size=size)
     for patch in patches:
         ax.add_patch(patch)
-    
+
     # Customize edge styling
     edge_color = nv.edges.edge_colors(et,
                                       nt=None,
@@ -228,7 +234,7 @@ def plot_circos(G,
                               aes_kw={'fc': 'none'})
     for patch in patches:
         ax.add_patch(patch)
-    
+
     # Annotation for categories in exposures,
     # and names for phenotypes
     for grp, df in nt.groupby('category'):
@@ -238,20 +244,20 @@ def plot_circos(G,
             for i in ind:
                 val = tuple(pos.get(i))
                 xys.append(val)
-            
+
             ind = round(len(xys) / 2)
             if ind == 1:
                 ind = 0
-        
+
             if grp == 'phthalates':
                 offsety = 1.4
             else:
                 offsety = 0
-            x = ( (xys[ind][0]) * 1.05 )
-            y = ( (xys[ind][1]) * 1.05 ) + offsety
+            x = ((xys[ind][0]) * 1.05)
+            y = ((xys[ind][1]) * 1.05) + offsety
             ha, va = annotate.text_alignment(x, y)
             ax.annotate(grp, xy=(x, y), ha=ha, va=va)
-    
+
     for r in nt.iterrows():
         if r[1]['group'] == 'phenotype':
             x = degrees[r[0]][0]
@@ -262,10 +268,10 @@ def plot_circos(G,
             else:
                 rot = deg - 180
             ha, va = annotate.text_alignment(x, y)
-            ax.annotate(xy = (x, y),
-                        ha = ha,
-                        va = 'center',
-                        text = r[1]['name'],
+            ax.annotate(xy=(x, y),
+                        ha=ha,
+                        va='center',
+                        text=r[1]['name'],
                         rotation=rot,
                         rotation_mode='anchor',
                         size=6)
@@ -273,10 +279,11 @@ def plot_circos(G,
     fontchanges = {'fontsize': 20}
     ax.set_title(title,
                  fontdict=fontchanges,
-                 pad=25) 
+                 pad=25)
     nv.plots.rescale(G)
     nv.plots.aspect_equal()
     nv.plots.despine()
+
 
 def group_colormap(data: pd.Series):
     a = plt.get_cmap('tab20')
@@ -286,7 +293,7 @@ def group_colormap(data: pd.Series):
             'smoking behavior': a(1),
             'smoking family': a(2),
             'heavy metals': a(3),
-            'pcbs': a(4), 
+            'pcbs': a(4),
             'volatile compounds': a(5),
             'phthalates': a(6),
             'dioxins': a(7),
@@ -310,6 +317,7 @@ def group_colormap(data: pd.Series):
             'white blood cells': b(18)}
     return data.apply(lambda x: cmap.get(x))
 
+
 def plot_miami(results,
                to_annotate: dict = None):
     '''
@@ -324,28 +332,29 @@ def plot_miami(results,
     '''
     offset = 5  # Spacing between categories
     df = results.copy()
-    
+
     # Transform pvalues
     df['log_pval_female'] = -np.log10(df['pvalue_female'])
     df['log_pval_male'] = np.log10(df['pvalue_male'])
 
     # Generating x position
     df['category_x_offset'] = df.groupby('Variable_Category').ngroup() * offset
-    df['xpos'] = df.groupby(['Variable_Category', 'Variable_Name']).ngroup() + \
-                 df['category_x_offset']
-    
+    df['xpos'] = df.groupby(['Variable_Category',
+                             'Variable_Name']).ngroup() + \
+        df['category_x_offset']
+
     # X labels
     x_labels = []
     x_labels_pos = []
 
-    fig = plt.figure(figsize=(10,10))
+    fig = plt.figure(figsize=(10, 10))
     ax1 = fig.add_subplot(211)
     ax2 = fig.add_subplot(212)
 
     pval_columns = ['log_pval_female',
                     'log_pval_male']
     for category_num, (category_name, category_data) in enumerate(
-            df.groupby('Variable_Category') ):
+            df.groupby('Variable_Category')):
         if category_num % 2 == 0:
             base_color = 'lightgray'
         else:
@@ -376,8 +385,8 @@ def plot_miami(results,
                     x = d['xpos'].iloc[0]
                     y = d[pval_col].max()
                     name = d['Variable_Name'].iloc[0] + \
-                           '\n' + \
-                           d['Outcome_Name'].iloc[0]
+                        '\n' + \
+                        d['Outcome_Name'].iloc[0]
 
                     if var == 'LBXCOT':
                         yoffset = 100
@@ -387,27 +396,27 @@ def plot_miami(results,
                         yoffset = 100
                     else:
                         yoffset = 150
-                    
+
                     if pval_col == 'log_pval_female':
                         xytext = (x, y + yoffset)
                     else:
                         xytext = (x, y - yoffset)
                     ax.annotate(text=name,
-                                xy=(x,y),
+                                xy=(x, y),
                                 xytext=xytext,
                                 ha='left',
                                 arrowprops=dict(arrowstyle='->'))
 
             # Highlight sex differences
             for diff_num, (diff_name, diff_data) in enumerate(
-                category_data.groupby('difference_type')):
+                    category_data.groupby('difference_type')):
                 if diff_name == 'Pure':
                     high_color = 'orange'
                 elif diff_name == 'Qualitative':
                     high_color = 'green'
                 elif diff_name == 'Quantitative':
                     high_color = 'blue'
-                
+
                 if diff_name != 'None':
                     ax.scatter(x='xpos',
                                y=pval_col,
@@ -417,24 +426,24 @@ def plot_miami(results,
                                data=diff_data,
                                alpha=0.7)
 
-    labels = df['Variable_Category'].unique()
     for ax in [ax1, ax2]:
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
         ax.spines['bottom'].set_visible(False)
         if ax == ax1:
             ax.set_xticks(x_labels_pos)
-            ax.set_xticklabels(x_labels, 
+            ax.set_xticklabels(x_labels,
                                rotation=45,
                                ha='right',
-                               fontdict={'fontsize':8})
+                               fontdict={'fontsize': 8})
         else:
             ax.get_xaxis().set_visible(False)
-        #ax.spines['left'].set_visible(False)
-    
+        # ax.spines['left'].set_visible(False)
+
     plt.tight_layout()
     plt.savefig('../Results/Plots/Figure1.pdf')
     plt.show()
+
 
 def plot_forest(results,
                 colors):
@@ -450,28 +459,61 @@ def plot_forest(results,
         colormap to use. Only takes the first two colors for female and male
         in that order
     '''
-    fig = plt.figure(figsize=(8,12))
-    ax = fig.add_subplot(111)
+    fig = plt.figure(figsize=(30, 30))
+    ax1 = fig.add_subplot(111)
+    ax2 = fig.add_subplot(132)
+    ax3 = fig.add_subplot(133)
+    axes = [ax1, ax2, ax3]
     sexes = ['female',
              'male']
     differences = ['Pure',
                    'Quantitative',
                    'Qualitative']
     df = results.sort_values(by=['difference_type',
+                                 'Variable_Category',
                                  'Variable',
-                                 'Outcome'])
-    y = list(range(0, len(df)))
-    beta_female = df.loc[:,'Beta_female']
-    beta_male = df.loc[:,'Beta_male']
-    ax.vlines([0], -1, 
-              len(df) + 1,
-              colors='k')
-    ax.plot(beta_female,
-            y,
-            'bo')
-    ax.plot(beta_male,
-            y,
-            'mo')
-    
-    plt.show()
-    
+                                 'Outcome']).reset_index()
+    for num, diff in enumerate(differences):
+        diff_df = df.query('difference_type == @diff').reset_index()
+        ax = axes[num]
+
+        ax.set_yticks(list(range(len(diff_df))))
+        ax.set_yticklabels(diff_df['Variable'])
+        # Adding Twin Axes
+        axt = ax.twinx()
+        axt.set_ylabel('Outcomes')
+        axt.tick_params(axis='y')
+        axt.set_yticks(list(range(len(diff_df))))
+        axt.set_yticklabels(diff_df['Outcome'])
+
+        for a in [ax, axt]:
+            a.vlines([0],
+                     -1,
+                     len(diff_df) + 1,
+                     color='black',
+                     alpha=0.8,
+                     linestyles='solid')
+        for sex in sexes:
+            if sex == 'female':
+                sep = 0
+                color = colors(0)
+            else:
+                sep = 0.3
+                color = colors(1)
+            beta_name = 'Beta_' + sex
+            se_name = 'SE_' + sex
+            interval = st.norm.interval(alpha=0.95,
+                                        loc=diff_df[beta_name],
+                                        scale=diff_df[se_name])
+            for y_row in range(len(interval[0])):
+                c = y_row + sep
+                ax.scatter(diff_df[beta_name][y_row],
+                           c,
+                           color=color)
+                ax.plot([round(interval[0][y_row], 3),
+                         round(interval[1][y_row], 3)],
+                        [c, c],
+                        color=color)
+
+    plt.tight_layout()
+    plt.savefig('../Results/Plots/Figure3.pdf')
