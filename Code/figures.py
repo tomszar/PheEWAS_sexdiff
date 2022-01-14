@@ -459,8 +459,9 @@ def plot_forest(results,
         colormap to use. Only takes the first two colors for female and male
         in that order
     '''
-    fig = plt.figure(figsize=(30, 30))
-    ax1 = fig.add_subplot(111)
+    font_ticklabels = {'fontsize': 6}
+    fig = plt.figure(figsize=(20, 8))
+    ax1 = fig.add_subplot(131)
     ax2 = fig.add_subplot(132)
     ax3 = fig.add_subplot(133)
     axes = [ax1, ax2, ax3]
@@ -478,13 +479,16 @@ def plot_forest(results,
         ax = axes[num]
 
         ax.set_yticks(list(range(len(diff_df))))
-        ax.set_yticklabels(diff_df['Variable'])
+        ax.set_yticklabels(diff_df['Variable_Name'],
+                           fontdict=font_ticklabels)
+        ax.set_title(diff)
         # Adding Twin Axes
         axt = ax.twinx()
         axt.set_ylabel('Outcomes')
         axt.tick_params(axis='y')
         axt.set_yticks(list(range(len(diff_df))))
-        axt.set_yticklabels(diff_df['Outcome'])
+        axt.set_yticklabels(diff_df['Outcome_Name'],
+                            fontdict=font_ticklabels)
 
         for a in [ax, axt]:
             a.vlines([0],
