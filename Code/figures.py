@@ -457,7 +457,7 @@ def plot_miami(results,
                frameon=False,
                prop={'size': 8})
     # Add male female labels
-    for i, label in enumerate(('Female', 'Male')):
+    for i, label in enumerate(('Females', 'Males')):
         axes[i].text(-0.05, 1.1,
                      label,
                      transform=axes[i].transAxes,
