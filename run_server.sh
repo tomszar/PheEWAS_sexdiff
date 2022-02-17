@@ -64,4 +64,8 @@ echo "-----Generate report-----"
 jupyter nbconvert --execute --clear-output 03_ReportResults.ipynb 
 jupyter nbconvert --to html 03_ReportResults.ipynb
 
+echo ""
+echo "-----Generate figures-----"
+python 04_PlotFigures.py
+
 echo "Job Ended at $(date)"

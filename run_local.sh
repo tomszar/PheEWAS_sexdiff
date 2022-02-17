@@ -20,3 +20,5 @@ python 02_Analysis.py
 echo '-----Generate report-----'
 jupyter nbconvert --execute --clear-output 03_ReportResults.ipynb 
 jupyter nbconvert --to html 03_ReportResults.ipynb
+echo '-----Generate figures-----'
+python 04_PlotFigures.py
