@@ -3,6 +3,7 @@ import pandas as pd
 import nxviz as nv
 import numpy as np
 import scipy.stats as st
+import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
 from nxviz import annotate
 
@@ -159,13 +160,13 @@ def novel_circos(nt: pd.DataFrame,
         for grp, df in xt.groupby(group_by):
             if grp != 'empty':
                 for node, data in df.iterrows():
+                    t = nv.geometry.item_theta(nodes,
+                                               node)
                     x, y = nv.polcart.to_cartesian(r=radius,
-                               theta=nv.geometry.item_theta(nodes,
-                                                            node))
+                                                   theta=t)
                     pos[node] = np.array([x, y])
                     xd, yd = nv.polcart.to_cartesian(r=radius * 1.1,
-                                 theta=nv.geometry.item_theta(nodes,
-                                                              node))
+                                                     theta=t)
                     deg = nv.polcart.to_degrees(
                         nv.geometry.item_theta(nodes,
                                                node))
@@ -173,13 +174,13 @@ def novel_circos(nt: pd.DataFrame,
 
     else:
         for node, data in nt.iterrows():
+            t = nv.geometry.item_theta(nodes,
+                                       node)
             x, y = nv.polcart.to_cartesian(r=radius,
-                       theta=nv.geometry.item_theta(nodes,
-                                                    node))
+                                           theta=t)
             pos[node] = np.array([x, y])
             xd, yd = nv.polcart.to_cartesian(r=radius * 1.1,
-                         theta=nv.geometry.item_theta(nodes,
-                                                      node))
+                                             theta=t)
             deg = nv.polcart.to_degrees(
                 nv.geometry.item_theta(nodes,
                                        node))
@@ -350,7 +351,26 @@ def plot_miami(results,
     fig = plt.figure(figsize=(10, 10))
     ax1 = fig.add_subplot(211)
     ax2 = fig.add_subplot(212)
+    axes = [ax1, ax2]
 
+    # Label colors
+    label_colors = {'Pure': 'orange',
+                    'Qualitative': 'green',
+                    'Quantitative': 'blue'}
+    # Create legend patch
+    patches = []
+    for diff_num, (diff_name, diff_data) in enumerate(
+            df.groupby('difference_type')):
+        if diff_name != 'None':
+            p = mlines.Line2D([], [],
+                              color=label_colors[diff_name],
+                              marker='o',
+                              label=diff_name,
+                              ms=8,
+                              ls='')
+            patches.append(p)
+
+    # Start ploting
     pval_columns = ['log_pval_female',
                     'log_pval_male']
     for category_num, (category_name, category_data) in enumerate(
@@ -410,23 +430,16 @@ def plot_miami(results,
             # Highlight sex differences
             for diff_num, (diff_name, diff_data) in enumerate(
                     category_data.groupby('difference_type')):
-                if diff_name == 'Pure':
-                    high_color = 'orange'
-                elif diff_name == 'Qualitative':
-                    high_color = 'green'
-                elif diff_name == 'Quantitative':
-                    high_color = 'blue'
-
                 if diff_name != 'None':
                     ax.scatter(x='xpos',
                                y=pval_col,
                                label=None,
-                               color=high_color,
+                               color=label_colors[diff_name],
                                s=300000 / len(df),
                                data=diff_data,
                                alpha=0.7)
 
-    for ax in [ax1, ax2]:
+    for ax in axes:
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
         ax.spines['bottom'].set_visible(False)
@@ -440,9 +453,21 @@ def plot_miami(results,
             ax.get_xaxis().set_visible(False)
         # ax.spines['left'].set_visible(False)
 
-    plt.tight_layout()
-    plt.savefig('../Results/Plots/Figure1.pdf')
-    plt.show()
+    ax1.legend(handles=patches,
+               frameon=False,
+               prop={'size': 8})
+    # Add male female labels
+    for i, label in enumerate(('Female', 'Male')):
+        axes[i].text(-0.05, 1.1,
+                     label,
+                     transform=axes[i].transAxes,
+                     fontsize=16,
+                     fontweight='bold',
+                     va='top',
+                     ha='right')
+
+    fig.tight_layout()
+    fig.savefig('../Results/Plots/Figure1.pdf')
 
 
 def plot_forest(results,
