@@ -5,13 +5,14 @@ from matplotlib import cm
 # Circos plot
 results = figures.load_results('significant')
 G = figures.results_to_networkx(results)
-fig = plt.figure(figsize=(10, 12))
+fig = plt.figure(figsize=(10, 5))
 ax1 = fig.add_subplot(121)
 figures.plot_circos(G, ax=ax1)
 ax2 = fig.add_subplot(122)
 figures.plot_circos(G, ax=ax2, sex='male', title='Males')
 fig.tight_layout()
-fig.savefig('../Results/Plots/Figure2.pdf')
+fig.savefig('../Results/Plots/Figure2.pdf',
+            dpi=600)
 
 # Dot plot
 results = figures.load_results('significant')

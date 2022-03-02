@@ -348,7 +348,8 @@ def plot_miami(results,
     x_labels = []
     x_labels_pos = []
 
-    fig = plt.figure(figsize=(10, 10))
+    fig = plt.figure(figsize=(14, 14),
+                     dpi=600)
     ax1 = fig.add_subplot(211)
     ax2 = fig.add_subplot(212)
     axes = [ax1, ax2]
@@ -425,7 +426,9 @@ def plot_miami(results,
                                 xy=(x, y),
                                 xytext=xytext,
                                 ha='left',
-                                arrowprops=dict(arrowstyle='->'))
+                                size=8,
+                                arrowprops=dict(arrowstyle='->',
+                                                alpha=0.7))
 
             # Highlight sex differences
             for diff_num, (diff_name, diff_data) in enumerate(
@@ -467,7 +470,8 @@ def plot_miami(results,
                      ha='right')
 
     fig.tight_layout()
-    fig.savefig('../Results/Plots/Figure1.pdf')
+    fig.savefig('../Results/Plots/Figure1.pdf',
+                dpi=600)
 
 
 def plot_forest(results,
@@ -499,9 +503,27 @@ def plot_forest(results,
                                  'Variable_Category',
                                  'Variable',
                                  'Outcome']).reset_index()
+    # Create labels and patches
+    label_colors = {'Females': colors(0),
+                    'Males': colors(1)}
+    patches = []
+    for key, value in label_colors.items():
+        p = mlines.Line2D([], [],
+                          color=value,
+                          marker='o',
+                          label=key,
+                          ms=8,
+                          ls='')
+        patches.append(p)
+
     for num, diff in enumerate(differences):
         diff_df = df.query('difference_type == @diff').reset_index()
         ax = axes[num]
+        # Add legend
+        # Add legend
+        ax.legend(handles=patches,
+                  frameon=False,
+                  prop={'size': 8})
 
         ax.set_yticks(list(range(len(diff_df))))
         ax.set_yticklabels(diff_df['Variable_Name'],
@@ -545,4 +567,5 @@ def plot_forest(results,
                         color=color)
 
     plt.tight_layout()
-    plt.savefig('../Results/Plots/Figure3.pdf')
+    plt.savefig('../Results/Plots/Figure3.pdf',
+                dpi=600)
