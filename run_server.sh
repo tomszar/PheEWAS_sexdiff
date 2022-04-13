@@ -2,7 +2,7 @@
 #PBS -l nodes=1:ppn=6:rhel7
 #PBS -l walltime=09:00:00
 #PBS -l pmem=8gb
-#PBS -A mah546_c_g_bc_default #or open
+#PBS -A mah546_e_g_bc_default #or open
 #PBS -j oe
 
 #### THIS SCRIPT WILL INITIALIZE THE REPO BY:
