@@ -6,6 +6,7 @@ import scipy.stats as st
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
 from nxviz import annotate
+from typing import Union
 
 
 def load_results(type: str = 'all'):
@@ -16,7 +17,7 @@ def load_results(type: str = 'all'):
     ----------
     type: str
         the type of results requested, it can be 'all', 'significant',
-        'male', or 'female'
+        'male', 'female', 'Pure', 'Quantitative', or 'Qualitative'
 
     Returns
     ----------
@@ -32,6 +33,9 @@ def load_results(type: str = 'all'):
     results = results.loc[converged]
     if type == 'significant':
         keep_rows = ~(results['difference_type'] == 'None')
+        results = results[keep_rows]
+    elif type == 'Pure' or type == 'Quantitative' or type == 'Qualitative':
+        keep_rows = (results['difference_type'] == type)
         results = results[keep_rows]
     return results
 
@@ -188,18 +192,31 @@ def novel_circos(nt: pd.DataFrame,
     return pos, degrees
 
 
-def plot_circos(G,
-                ax,
-                title='Females',
-                sex='female'):
+def plot_circos(G: nx.Graph,
+                ax: plt.Axes,
+                title: Union[str, None] = None,
+                sex: str = 'female',
+                offsets: Union[dict[str, tuple], None] = None):
     '''
     Generate circos plot
+
+    Parameters
+    ----------
+    G: nx.Graph
+        networkx graph
+    ax: plt.AxesSubplot
+        matplotlib axes
+    title: str
+        Title of plot
+    sex: str
+        Which sex to plot
+    offsets: dict[str, tuple] or None
+        Exposure group with an (x,y) offset to plot. Default None
     '''
     nt = nv.utils.node_table(G)
     nt['size'] = 1
     et = nv.utils.edge_table(G)
 
-    ax = plt.gca()
     pos, degrees = novel_circos(nt,
                                 group_by='group',
                                 sort_by='order')
@@ -250,14 +267,19 @@ def plot_circos(G,
             if ind == 1:
                 ind = 0
 
-            if grp == 'phthalates':
-                offsety = 1.4
-            else:
-                offsety = 0
-            x = ((xys[ind][0]) * 1.05)
-            y = ((xys[ind][1]) * 1.05) + offsety
+            offsetx = 0
+            offsety = 0
+            if offsets is not None:
+                if grp in offsets:
+                    offsetx = offsets[grp][0]
+                    offsety = offsets[grp][1]
+
+            x = ((xys[ind][0]) * 1.1) + offsetx
+            y = ((xys[ind][1]) * 1.1) + offsety
             ha, va = annotate.text_alignment(x, y)
-            ax.annotate(grp, xy=(x, y), ha=ha, va=va)
+            ax.annotate(grp, xy=(x, y),
+                        ha=ha, va=va,
+                        size=8)
 
     for r in nt.iterrows():
         if r[1]['group'] == 'phenotype':
@@ -277,13 +299,16 @@ def plot_circos(G,
                         rotation_mode='anchor',
                         size=6)
 
-    fontchanges = {'fontsize': 20}
-    ax.set_title(title,
-                 fontdict=fontchanges,
-                 pad=25)
-    nv.plots.rescale(G)
-    nv.plots.aspect_equal()
-    nv.plots.despine()
+    if title is not None:
+        fontchanges = {'fontsize': 18}
+        ax.set_title(title,
+                     fontdict=fontchanges,
+                     pad=25)
+    # Rescale
+    ax.relim()
+    ax.autoscale_view()
+    ax.set_aspect('equal')
+    nv.plots.despine(ax=ax)
 
 
 def group_colormap(data: pd.Series):

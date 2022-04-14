@@ -57,3 +57,6 @@ __pycache__
 *.pbs.o*
 *.pbs.e*
 *.log
+
+# Pyright config
+pyrightconfig.json
