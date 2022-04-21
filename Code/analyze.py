@@ -471,8 +471,8 @@ class PHE_EWAS:
                                          'Outcome',
                                          'Outcome_Name'])
 
-    def save_results(self, 
-                     respath:str='../Results/'):
+    def save_results(self,
+                     respath: str = '../Results/'):
         '''
         Save PheEWAS results in respath
 
@@ -481,7 +481,45 @@ class PHE_EWAS:
         respath: str
             folder path to save results file
         '''
-        name = 'ResultsTable.csv'
+        name = 'CompleteResultsTable.csv'
         filepath = os.path.join(respath, name)
         self.data.to_csv(filepath)
-        
+
+        # Saving significant only
+        name = 'SignificantResultsTable.csv'
+        sig_bool = self.data.loc[:, 'difference_type'] != 'None'
+        sig_table = self.data.loc[sig_bool]
+        filepath = os.path.join(respath, name)
+        sig_table.to_csv(filepath)
+
+        # Creating tables
+        columns_keep = ['Variable_Category',
+                        'Variable_Name',
+                        'Outcome_Name',
+                        'Beta_female',
+                        'pvalue_female',
+                        'Beta_male',
+                        'pvalue_male',
+                        'pvalue_SD']
+        columns_round = ['Beta_female',
+                         'Beta_male']
+        formats = {'pvalue_female': '{:.2E}',
+                   'pvalue_male': '{:.2E}',
+                   'pvalue_SD': '{:.2E}'}
+        types = ['Pure',
+                 'Quantitative',
+                 'Qualitative']
+        data = self.data.reset_index()
+        for t in types:
+            name = t + 'Table.csv'
+            filepath = os.path.join(respath, name)
+            table_bool = data.loc[:, 'difference_type'] == t
+            table = data.loc[table_bool, columns_keep]
+            for col, f in formats.items():
+                table[col] = table[col].map(lambda x: f.format(x))
+            table[columns_round] = table[columns_round].round(3)
+            # Sort values
+            table = table.sort_values(by=['Variable_Category',
+                                          'Variable_Name',
+                                          'Outcome_Name'])
+            table.to_csv(filepath, sep='&', index=False)

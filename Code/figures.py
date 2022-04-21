@@ -24,7 +24,7 @@ def load_results(type: str = 'all'):
     results: pd.DataFrame
         results table
     '''
-    results = pd.read_csv('../Results/ResultsTable.csv')
+    results = pd.read_csv('../Results/CompleteResultsTable.csv')
     converged_columns = ['Converged_df',
                          'Converged_rf',
                          'Converged_dm',
