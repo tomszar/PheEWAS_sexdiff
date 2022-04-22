@@ -23,16 +23,13 @@ The repository provides an `environment.yml` file to use with conda.
 First, install [anaconda](https://www.anaconda.com/products/individual) on your local computer or user server account following the appropriate directions. Next, on the terminal, in the root of this repository, install the conda environment by running:
 
 ```bash
-conda config --add channels r
-conda config --add channels bioconda
-conda config --add channels conda-forge
 conda env create -f environment.yml
 ```
 
 If the installation fails, you can install the environment manually, by running the following:
 
 ```bash
-conda create --name py_clarite python=3.9 pandas numpy jupyterlab scipy statsmodels matplotlib scikit-learn r rpy2
+conda create --name py_clarite python<=3.9 jupyterlab matplotlib networkx numpy nxviz pandas pip rpy2 scikit-learn scipy statsmodels
 conda activate py_clarite
 pip install clarite
 ```
