@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6483503.svg)](https://doi.org/10.5281/zenodo.6483503)
+
 # PheEWAS sex differences
 
 Analysis on sex differences in NHANES dataset. The analysis plan is [here](https://github.com/tomszar/PheEWAS_sexdiff/blob/main/ANALYSIS_PLAN.pdf).
