@@ -196,7 +196,8 @@ def plot_circos(G: nx.Graph,
                 ax: plt.Axes,
                 title: Union[str, None] = None,
                 sex: str = 'female',
-                offsets: Union[dict[str, tuple], None] = None):
+                offsets: Union[dict[str, tuple], None] = None,
+                highlight_pheno: Union[list[str], None] = None):
     '''
     Generate circos plot
 
@@ -212,10 +213,15 @@ def plot_circos(G: nx.Graph,
         Which sex to plot
     offsets: dict[str, tuple] or None
         Exposure group with an (x,y) offset to plot. Default None
+    highlight_pheno: list[str] or None
+        List of phenotypes to highlight with greater font size. Default None
     '''
     nt = nv.utils.node_table(G)
     nt['size'] = 1
     et = nv.utils.edge_table(G)
+
+    if highlight_pheno is None:
+        highlight_pheno = []
 
     pos, degrees = novel_circos(nt,
                                 group_by='group',
@@ -291,13 +297,17 @@ def plot_circos(G: nx.Graph,
             else:
                 rot = deg - 180
             ha, va = annotate.text_alignment(x, y)
+            if r[1]['name'] in highlight_pheno:
+                size = 8
+            else:
+                size = 6
             ax.annotate(xy=(x, y),
                         ha=ha,
                         va='center',
                         text=r[1]['name'],
                         rotation=rot,
                         rotation_mode='anchor',
-                        size=6)
+                        size=size)
 
     if title is not None:
         fontchanges = {'fontsize': 18}

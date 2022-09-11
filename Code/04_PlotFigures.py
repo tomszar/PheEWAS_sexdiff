@@ -72,9 +72,23 @@ for i in range(4):
     last = ((i+1) * 2) + 1
     ax1 = fig.add_subplot(axs[:, 0])
     ax2 = fig.add_subplot(axs[:, 1])
-    figures.plot_circos(G, ax=ax1)
+    if types[i] == 'Pure':
+        highlight = ['Albumin',
+                     'Homocysteine',
+                     'Red cell count SI']
+    elif types[i] == 'Quantitative':
+        highlight = ['Hematocrit',
+                     'Homocysteine',
+                     'White blood cell count SI',
+                     'Segmented neutrophils number',
+                     'Monocyte number']
+    else:
+        highlight = []
+    figures.plot_circos(G, ax=ax1,
+                        highlight_pheno=highlight)
     figures.plot_circos(G, ax=ax2,
-                        sex='male')
+                        sex='male',
+                        highlight_pheno=highlight)
     axs.tight_layout(fig)
     fig.savefig('../Results/Plots/' + types[i] + '_Smoking.pdf',
                 dpi=600)
