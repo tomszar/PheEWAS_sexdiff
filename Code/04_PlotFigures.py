@@ -55,6 +55,30 @@ axs.tight_layout(fig, pad=0,
 fig.savefig('../Results/Plots/Figure2.pdf',
             dpi=600)
 
+# Circos for smoking only
+keep_smoking = ['heavy metals',
+                'volatile compounds',
+                'cotinine',
+                'smoking behavior',
+                'smoking family']
+for i in range(4):
+    fig = plt.figure(figsize=(8, 8))
+    axs = gridspec.GridSpec(1, 2, figure=fig)
+    results = figures.load_results(types[i])
+    keep_bool = results.loc[:, 'Variable_Category'].isin(keep_smoking)
+    results = results.loc[keep_bool, :]
+    G = figures.results_to_networkx(results)
+    first = (i*2) + 1
+    last = ((i+1) * 2) + 1
+    ax1 = fig.add_subplot(axs[:, 0])
+    ax2 = fig.add_subplot(axs[:, 1])
+    figures.plot_circos(G, ax=ax1)
+    figures.plot_circos(G, ax=ax2,
+                        sex='male')
+    axs.tight_layout(fig)
+    fig.savefig('../Results/Plots/' + types[i] + '_Smoking.pdf',
+                dpi=600)
+
 # Dot plot
 results = figures.load_results('significant')
 color_pastel = cm.get_cmap('Set2')

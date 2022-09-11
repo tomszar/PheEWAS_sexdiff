@@ -451,9 +451,9 @@ def plot_miami(results,
                                 xy=(x, y),
                                 xytext=xytext,
                                 ha='left',
-                                size=8,
+                                fontsize=8,
                                 arrowprops=dict(arrowstyle='->',
-                                                alpha=0.7))
+                                                antialiased=True))
 
             # Highlight sex differences
             for diff_num, (diff_name, diff_data) in enumerate(
