@@ -5,6 +5,7 @@ import numpy as np
 import scipy.stats as st
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 from nxviz import annotate
 from typing import Union
 
@@ -354,8 +355,8 @@ def group_colormap(data: pd.Series):
     return data.apply(lambda x: cmap.get(x))
 
 
-def plot_miami(results,
-               to_annotate: dict = None):
+def plot_miami(results: pd.DataFrame,
+               to_annotate: Union[dict, None] = None):
     '''
     Miami plot with female and male results.
 
@@ -363,8 +364,8 @@ def plot_miami(results,
     ----------
     results: pd.DataFrame
         results dataframe with male and female results
-    to_annotate: dict
-        dictionary with variable and outcome to annotate
+    to_annotate: Union[dict, None]
+        dictionary with variable and outcome to annotate, or None
     '''
     offset = 5  # Spacing between categories
     df = results.copy()
@@ -510,7 +511,8 @@ def plot_miami(results,
 
 
 def plot_forest(results,
-                colors):
+                colors,
+                filename: str = 'Figure3'):
     '''
     Create a forest (dot) plot showing the effect sizes
     between sexes
@@ -522,6 +524,8 @@ def plot_forest(results,
     colors: matplotlib.colors.ListedColormap
         colormap to use. Only takes the first two colors for female and male
         in that order
+    filename: str
+        Name of the file to print.
     '''
     font_ticklabels = {'fontsize': 6}
     fig = plt.figure(figsize=(20, 8))
@@ -529,8 +533,6 @@ def plot_forest(results,
     ax2 = fig.add_subplot(132)
     ax3 = fig.add_subplot(133)
     axes = [ax1, ax2, ax3]
-    sexes = ['female',
-             'male']
     differences = ['Pure',
                    'Quantitative',
                    'Qualitative']
@@ -538,7 +540,93 @@ def plot_forest(results,
                                  'Variable_Category',
                                  'Variable',
                                  'Outcome']).reset_index()
-    # Create labels and patches
+    for num, diff in enumerate(differences):
+        diff_df = df.query('difference_type == @diff').reset_index()
+        ax = axes[num]
+        plot_single_forest(diff_df,
+                           ax,
+                           diff,
+                           font_ticklabels,
+                           colors)
+    plt.tight_layout()
+    plt.savefig('../Results/Plots/' + filename + '.pdf',
+                dpi=600)
+
+
+def plot_specific_forest(results: pd.DataFrame,
+                         specific: dict[str, list[str]],
+                         filename: str,
+                         title: str,
+                         colors: mcolors.Colormap):
+    '''
+    Plot specific forest plot from results. specific gives which
+    Variable - Outcomes combinations to plot.
+
+    Parameters
+    ----------
+    results: pd.DataFrame
+        Results table.
+    specific: dict[str, list[str]]
+        Variable - Outcome combination to retain and plot.
+    filename: str
+        Name of the figure.
+    title: str
+        Title of the figure.
+    colors: mcolors.Colormap
+        Colors to use.
+    '''
+    keep_bool = (results['Variable'].isin(specific['Variable'])) &\
+        (results['Outcome'].isin(specific['Outcome']))
+    spe_res = results.loc[keep_bool, ]
+    spe_res = spe_res.sort_values('Outcome_Name').reset_index()
+    font_ticklabels = {'fontsize': 6}
+    fig = plt.figure(figsize=(6, 8))
+    ax1 = fig.add_subplot(111)
+    plot_single_forest(spe_res,
+                       ax1,
+                       title,
+                       font_ticklabels,
+                       colors,
+                       0.01,
+                       45)
+    fig.tight_layout()
+    fig.savefig('../Results/Plots/' + filename + '.pdf',
+                dpi=600)
+
+
+def plot_single_forest(results: pd.DataFrame,
+                       ax: plt.Axes,
+                       title: str,
+                       font_ticklabels: dict,
+                       colors: mcolors.Colormap,
+                       offset_vline: float = 1.0,
+                       yrotation: int = 0,
+                       sexes: list[str] = ['female', 'male']):
+    '''
+    Plot a single column forest plot.
+
+    Parameters
+    ----------
+    results: pd.DataFrame
+        List of results to plot.
+    ax: plt.Axes
+        Matplotlib axes to use.
+    patches: list[mlines.Lines2D]
+        Matplotlib patches to use as legends.
+    title: str
+        Title of the plot.
+    font_ticklabels: dict
+        Dictionary with font parameters to pass.
+    colors: plt.Colormap
+        Colormap to use.
+    offset_vline: float
+        Number to offset the vline.
+    yrotation: int
+        Angle to rotate Y tick labels.
+    sexes: list[str]
+        List of sexes to plot.
+    '''
+    # Legends
     label_colors = {'Females': colors(0),
                     'Males': colors(1)}
     patches = []
@@ -550,57 +638,48 @@ def plot_forest(results,
                           ms=8,
                           ls='')
         patches.append(p)
-
-    for num, diff in enumerate(differences):
-        diff_df = df.query('difference_type == @diff').reset_index()
-        ax = axes[num]
-        # Add legend
-        # Add legend
-        ax.legend(handles=patches,
-                  frameon=False,
-                  prop={'size': 8})
-
-        ax.set_yticks(list(range(len(diff_df))))
-        ax.set_yticklabels(diff_df['Variable_Name'],
-                           fontdict=font_ticklabels)
-        ax.set_title(diff)
-        # Adding Twin Axes
-        axt = ax.twinx()
-        axt.set_ylabel('Outcomes')
-        axt.tick_params(axis='y')
-        axt.set_yticks(list(range(len(diff_df))))
-        axt.set_yticklabels(diff_df['Outcome_Name'],
-                            fontdict=font_ticklabels)
-
-        for a in [ax, axt]:
-            a.vlines([0],
-                     -1,
-                     len(diff_df) + 1,
-                     color='black',
-                     alpha=0.8,
-                     linestyles='solid')
-        for sex in sexes:
-            if sex == 'female':
-                sep = 0
-                color = colors(0)
-            else:
-                sep = 0.3
-                color = colors(1)
-            beta_name = 'Beta_' + sex
-            se_name = 'SE_' + sex
-            interval = st.norm.interval(alpha=0.95,
-                                        loc=diff_df[beta_name],
-                                        scale=diff_df[se_name])
-            for y_row in range(len(interval[0])):
-                c = y_row + sep
-                ax.scatter(diff_df[beta_name][y_row],
-                           c,
-                           color=color)
-                ax.plot([round(interval[0][y_row], 3),
-                         round(interval[1][y_row], 3)],
-                        [c, c],
-                        color=color)
-
-    plt.tight_layout()
-    plt.savefig('../Results/Plots/Figure3.pdf',
-                dpi=600)
+    # Set the plot
+    ax.legend(handles=patches,
+              frameon=False,
+              prop={'size': 8})
+    ax.set_yticks(list(range(len(results))))
+    ax.set_yticklabels(results['Variable_Name'],
+                       fontdict=font_ticklabels,
+                       rotation=yrotation)
+    ax.set_title(title)
+    # Adding Twin Axes
+    axt = ax.twinx()
+    axt.set_ylabel('Outcomes')
+    axt.tick_params(axis='y')
+    axt.set_yticks(list(range(len(results))))
+    axt.set_yticklabels(results['Outcome_Name'],
+                        fontdict=font_ticklabels)
+    # Proper plot
+    for a in [ax, axt]:
+        a.vlines([0],
+                 -offset_vline,
+                 len(results) + offset_vline,
+                 color='gray',
+                 alpha=0.7,
+                 linestyles='dashed')
+    for sex in sexes:
+        if sex == 'female':
+            sep = 0
+            color = colors(0)
+        else:
+            sep = 0.3
+            color = colors(1)
+        beta_name = 'Beta_' + sex
+        se_name = 'SE_' + sex
+        interval = st.norm.interval(alpha=0.95,
+                                    loc=results[beta_name],
+                                    scale=results[se_name])
+        for y_row in range(len(interval[0])):
+            c = y_row + sep
+            ax.scatter(results[beta_name][y_row],
+                       c,
+                       color=color)
+            ax.plot([round(interval[0][y_row], 3),
+                     round(interval[1][y_row], 3)],
+                    [c, c],
+                    color=color)

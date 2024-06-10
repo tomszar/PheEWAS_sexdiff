@@ -99,6 +99,43 @@ color_pastel = cm.get_cmap('Set2')
 figures.plot_forest(results,
                     color_pastel)
 
+# Specific dot plot
+keep_assoc = {'Variable': ['SMD080', 'SMD070', 'SMD090', 'LBXBPB'],
+              'Outcome': ['LBXHCY', 'LBXHCY', 'LBXHCY', 'LBXHCY']}
+keep_hypo = {'Variable': ['LBXVEB', 'LBXVTO', 'LBXBCD', 'LBXCOT',
+                          'LBXCOT', 'current_past_smoking',
+                          'current_past_smoking', 'SMD410', 'SMD410',
+                          'LBXBPB'],
+             'Outcome': ['LBXRBCSI', 'LBXRBCSI', 'LBXRBCSI',
+                         'LBXHCT', 'LBXRBCSI', 'LBXHCT', 'LBXHGB',
+                         'LBXHCT', 'LBXRBCSI', 'LBXRBCSI']}
+keep_inflam = {'Variable': ['SMD070', 'SMD080', 'SMD090', 'LBXVXY', 'LBXVOX',
+                            'LBXBCD', 'LBXBCD', 'LBXBCD', 'LBXBCD', 'LBXBCD',
+                            'LBXCOT', 'cigarette_smoking', 'cigarette_smoking',
+                            'cigarette_smoking', 'current_past_smoking',
+                            'SMD410', 'SMD100NI', 'SMD100TR', 'SMD075',
+                            'LBXBPB', 'LBXBPB'],
+               'Outcome': ['LBXSAL', 'LBXSAL', 'LBXSAL', 'LBXSAL', 'LBXSAL',
+                           'LBDMONO', 'LBDNENO', 'LBXCRP', 'LBXSAL',
+                           'LBXWBCSI', 'LBXSAL', 'LBDNENO', 'LBXCRP',
+                           'LBXWBCSI', 'LBXSAL', 'LBXSAL', 'LBXSAL', 'LBXSAL',
+                           'LBXSAL', 'LBXCRP', 'LBXSAL']}
+figures.plot_specific_forest(results,
+                             keep_assoc,
+                             'Smoking',
+                             'Smoking Hcy',
+                             color_pastel)
+figures.plot_specific_forest(results,
+                             keep_hypo,
+                             'Smoking_hypo',
+                             'Smoking Hypoxia',
+                             color_pastel)
+figures.plot_specific_forest(results,
+                             keep_inflam,
+                             'Smoking_inflammation',
+                             'Smoking Inflammation',
+                             color_pastel)
+
 # Miami plot
 results = figures.load_results()
 figures.plot_miami(results,
