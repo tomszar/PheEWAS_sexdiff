@@ -220,25 +220,22 @@ class NhanesRaw:
 
     def transform_continuous_log2(self):
         """
-        Log2 transform all continuous variables, and reflect those with
-        negative skews in each cohort independently
+        Log2 transform all continuous variables, except covariates,
+        and reflect those with negative skews in each cohort independently
 
         Returns
         ----------
         data: List of pd.Dataframe
             data with log2 transformed continuous variables
         """
-        self._get_cohorts()
-
         print('-----Log2 transformation-----')
-        var_continuous = self._get_data_type()
+        var_continuous = self._get_data_type(remove_covs=False)
         print('Transforming ' +
               str(len(var_continuous)) +
               ' variables across cohorts')
 
         for i in range(len(self.cohorts_bool)):
             bools = self.cohorts_bool[i]
-
             for var in var_continuous:
                 vmin = self.data.loc[bools, var].min()
                 if vmin == 0:  # add a small constant to zero values
@@ -265,10 +262,8 @@ class NhanesRaw:
         data: List of pd.Dataframe
             data with scaled continuous variables
         """
-        self._get_cohorts
-
         print('-----Z-score normalization-----')
-        var_continuous = self._get_data_type()
+        var_continuous = self._get_data_type(remove_covs=False)
         print('Scaling ' +
               str(len(var_continuous)) +
               ' variables across cohorts')
@@ -663,21 +658,29 @@ class NhanesRaw:
         return removed_vars
 
     def _get_data_type(self,
-                       type: str = 'continuous'):
+                       var_type: str = 'continuous',
+                       remove_covs: bool = False):
         """
-        Get the list of variables that are the type
+        Get the list of variables that are the var_type
 
         Parameters
         ----------
-        type: str
+        var_type: str
             type of variable to get
+        remove_covs: bool
+            whether to remove covariates from subset_vars
 
         Returns
         ----------
-        var_type: list of str
+        subset_vars: list of str
             variables that are of the type
         """
-        vars = clarite.describe.get_types(self.data)
-        var_type = vars[vars == type].index
+        all_vars = clarite.describe.get_types(self.data)
+        subset_vars = list(all_vars[all_vars == var_type].index)
+        if remove_covs:
+            covs = self.covariates
+            for c in covs:
+                if c in subset_vars:
+                    subset_vars.remove(c)
 
-        return var_type
+        return subset_vars

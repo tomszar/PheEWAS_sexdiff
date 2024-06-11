@@ -130,10 +130,16 @@ class NhanesClean:
         self.weights_design = survey_design
         print('')
 
-    def run_phe_ewas(self):
+    def run_phe_ewas(self,
+                     subset: list[bool] = None):
         """
         Run a PheEWAS evaluating all phenotypes with all exposures
         while controlling for covariates
+
+        Parameters
+        ----------
+        subset: list of bool
+            list of rows to retain
 
         Returns
         ----------
@@ -154,11 +160,14 @@ class NhanesClean:
             dat = dat[covs +
                       self.phenotypes +
                       self.exposures]
+            wei = self.weights_design[i]
+            if subset is not None:
+                wei.subset(subset)
             res_temp = clarite.analyze.association_study(data=dat,
                                                          outcomes=self.phenotypes,
                                                          covariates=covs,
                                                          regression_kind='weighted_glm',
-                                                         survey_design_spec=self.weights_design[i],
+                                                         survey_design_spec=wei,
                                                          report_categorical_betas=True)
             total_results.append(res_temp)
         results = PHE_EWAS(total_results)
