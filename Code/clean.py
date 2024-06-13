@@ -1,4 +1,5 @@
 import os
+import sys
 import utils
 import weights
 import clarite
@@ -325,6 +326,29 @@ class NhanesRaw:
               str(remove_vars))
         self._remove_vars_in_lists(remove_vars)
         print('')
+
+    def covariate_summaries(self):
+        """
+        Give a summary of covariates depending on variable type and for each
+        cohort.
+        Do it after categorizing variables.
+
+        Returns
+        -------
+
+        """
+        f = open('../Results/summaries.txt', 'w')
+        sys.stdout = f
+        var_types = clarite.describe.get_types(self.data[self.covariates])
+        for ind, sub in enumerate(self.cohorts_bool):
+            temp_data = self.data.loc[sub, self.covariates]
+            print('=== Summaries for ' + self.cohorts[ind] + ' ===')
+            print(temp_data.describe().round(2))
+            categorical = var_types.index[var_types != 'continuous']
+            for col in categorical:
+                print(temp_data[col].value_counts())
+            print('')
+        f.close()
 
     def plot_variables(self,
                        plotpath: str = '../Results/Plots/Inspect',

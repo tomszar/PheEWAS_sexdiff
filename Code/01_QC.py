@@ -6,6 +6,7 @@ nhanes = clean.NhanesRaw()
 
 # QC PROCESS
 nhanes.categorize_variables()
+nhanes.covariate_summaries()
 nhanes.clarite_filters()
 nhanes.transform_continuous_log2()
 nhanes.zscore_normalization()
